@@ -9,11 +9,11 @@ const asyncHandler = (fn: any) => (req: Request, res: Response, next: NextFuncti
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-// 所有路由都需要认证
-router.use(authenticateToken);
-
-// 获取活动的所有席位
+// 获取活动的所有席位（不需要认证）
 router.get('/events/:eventId/positions', asyncHandler(PositionController.getEventPositions));
+
+// 以下路由需要认证
+router.use(authenticateToken);
 
 // 创建席位（需要管理员权限）
 router.post('/positions', requireAdmin, asyncHandler(PositionController.create));

@@ -33,6 +33,8 @@ const Users: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [form] = Form.useForm();
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   // 获取用户列表
   const fetchUsers = async () => {
@@ -41,6 +43,11 @@ const Users: React.FC = () => {
       const response = await userAPI.getAllUsers();
       setUsers(response.data.data);
     } catch (error: any) {
+      console.error('获取用户列表失败:', error);
+      console.error('错误详情:', {
+        status: error.response?.status,
+        data: error.response?.data
+      });
       message.error(error.response?.data?.message || '获取用户列表失败');
     } finally {
       setLoading(false);
@@ -49,6 +56,7 @@ const Users: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
+    fetchCurrentUser();
   }, []);
 
   // 获取等级颜色
@@ -112,6 +120,11 @@ const Users: React.FC = () => {
 
   // 处理表单提交
   const handleSubmit = async (values: any) => {
+    console.log('handleSubmit被调用，参数:', values);
+    console.log('editingUser:', editingUser);
+    
+    setSubmitLoading(true);
+    
     try {
       const updateData: any = {
         username: values.username,
@@ -124,9 +137,24 @@ const Users: React.FC = () => {
         updateData.password = values.password;
       }
 
+      console.log('准备更新的数据:', updateData);
+
       if (editingUser) {
-        await userAPI.updateUser(editingUser.id!, updateData);
-        message.success('用户更新成功');
+        console.log('开始调用API更新用户:', editingUser.id);
+        console.log('API URL:', `/api/users/${editingUser.id}`);
+        console.log('请求数据:', updateData);
+        
+        const response = await userAPI.updateUser(editingUser.id!, updateData);
+        console.log('API响应:', response);
+        console.log('响应状态:', response.status);
+        console.log('响应数据:', response.data);
+        
+        if (response.data.success) {
+          message.success('用户更新成功');
+        } else {
+          message.error(response.data.message || '更新失败');
+          return;
+        }
       }
 
       setModalVisible(false);
@@ -134,7 +162,37 @@ const Users: React.FC = () => {
       form.resetFields();
       fetchUsers();
     } catch (error: any) {
+      console.error('更新用户时发生错误:', error);
+      console.error('错误详情:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        config: error.config
+      });
       message.error(error.response?.data?.message || '操作失败');
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  // 测试状态更新
+  const testStateUpdate = () => {
+    console.log('测试状态更新');
+    setSubmitLoading(true);
+    setTimeout(() => {
+      setSubmitLoading(false);
+      message.success('状态更新测试成功');
+    }, 1000);
+  };
+
+  // 获取当前用户信息
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await userAPI.getProfile();
+      setCurrentUser(response.data.data);
+      console.log('当前用户信息:', response.data.data);
+    } catch (error: any) {
+      console.error('获取当前用户信息失败:', error);
     }
   };
 
@@ -219,12 +277,33 @@ const Users: React.FC = () => {
             <UserOutlined /> 用户管理
           </Title>
           <Space>
+            {currentUser && (
+              <span style={{ color: '#666' }}>
+                当前用户: {currentUser.username} ({currentUser.level})
+              </span>
+            )}
             <Button
               icon={<ReloadOutlined />}
               onClick={fetchUsers}
               loading={loading}
             >
               刷新
+            </Button>
+            <Button
+              onClick={() => {
+                console.log('测试按钮被点击');
+                message.info('测试按钮工作正常');
+              }}
+              type="default"
+            >
+              测试点击
+            </Button>
+            <Button
+              onClick={testStateUpdate}
+              type="dashed"
+              loading={submitLoading}
+            >
+              测试状态
             </Button>
           </Space>
         </div>
@@ -258,7 +337,17 @@ const Users: React.FC = () => {
         <Form
           form={form}
           layout="vertical"
-          onFinish={handleSubmit}
+          onFinish={(values) => {
+            console.log('表单onFinish被触发，数据:', values);
+            handleSubmit(values);
+          }}
+          onFinishFailed={(errorInfo) => {
+            console.log('表单验证失败:', errorInfo);
+            message.error('请检查表单输入');
+          }}
+          onValuesChange={(changedValues, allValues) => {
+            console.log('表单值变化:', changedValues, allValues);
+          }}
         >
           <Form.Item
             name="username"
@@ -316,7 +405,11 @@ const Users: React.FC = () => {
 
           <Form.Item>
             <Space>
-              <Button type="primary" htmlType="submit">
+              <Button 
+                type="primary" 
+                htmlType="submit"
+                loading={submitLoading}
+              >
                 {editingUser ? '更新' : '创建'}
               </Button>
               <Button

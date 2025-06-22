@@ -150,10 +150,22 @@ const EventDetail: React.FC = () => {
   // 执行报名
   const performSignup = async (positionId: number, signupData: any) => {
     try {
-      await positionAPI.signupPosition(positionId, signupData);
+      console.log('开始报名席位:', positionId);
+      console.log('报名数据:', signupData);
+      console.log('当前用户:', currentUser);
+      
+      const response = await positionAPI.signupPosition(positionId, signupData);
+      console.log('报名响应:', response);
+      
       message.success('席位报名成功');
       fetchEventDetail(); // 刷新数据
     } catch (error: any) {
+      console.error('报名失败:', error);
+      console.error('错误详情:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data
+      });
       message.error(error.response?.data?.message || '报名失败');
     }
   };

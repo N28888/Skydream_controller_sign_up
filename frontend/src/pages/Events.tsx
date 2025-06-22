@@ -27,8 +27,8 @@ import {
   CalendarOutlined,
   ClockCircleOutlined,
 } from '@ant-design/icons';
-import { eventAPI } from '../services/api';
-import { Event, EventForm, ApiResponse } from '../types';
+import { eventAPI, userAPI } from '../services/api';
+import { Event, EventForm, ApiResponse, User } from '../types';
 import dayjs from 'dayjs';
 
 const { Title } = Typography;
@@ -40,7 +40,23 @@ const Events: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [form] = Form.useForm();
+
+  // 获取当前用户信息
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await userAPI.getProfile();
+      setCurrentUser(response.data.data);
+    } catch (error) {
+      console.error('获取用户信息失败:', error);
+    }
+  };
+
+  // 检查用户是否有管理权限
+  const hasManagePermission = () => {
+    return currentUser && ['SUP', 'ADM'].includes(currentUser.level);
+  };
 
   // 获取活动列表
   const fetchEvents = async () => {
@@ -58,22 +74,31 @@ const Events: React.FC = () => {
 
   useEffect(() => {
     fetchEvents();
+    fetchCurrentUser();
   }, []);
 
   // 处理表单提交
   const handleSubmit = async (values: any) => {
     try {
+      console.log('活动表单提交数据:', values);
+      
       const eventData: EventForm = {
         ...values,
         event_date: values.event_date.format('YYYY-MM-DD'),
         event_time: values.event_time.format('HH:mm:ss'),
       };
 
+      console.log('处理后的活动数据:', eventData);
+
       if (editingEvent) {
-        await eventAPI.updateEvent(editingEvent.id, eventData);
+        console.log('更新活动:', editingEvent.id);
+        const response = await eventAPI.updateEvent(editingEvent.id, eventData);
+        console.log('更新活动响应:', response);
         message.success('活动更新成功');
       } else {
-        await eventAPI.createEvent(eventData);
+        console.log('创建新活动');
+        const response = await eventAPI.createEvent(eventData);
+        console.log('创建活动响应:', response);
         message.success('活动创建成功');
       }
 
@@ -81,9 +106,14 @@ const Events: React.FC = () => {
       setEditingEvent(null);
       form.resetFields();
       fetchEvents();
-    } catch (error) {
-      message.error(editingEvent ? '更新活动失败' : '创建活动失败');
-      console.error('提交失败:', error);
+    } catch (error: any) {
+      console.error('活动操作失败:', error);
+      console.error('错误详情:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+      message.error(error.response?.data?.message || (editingEvent ? '更新活动失败' : '创建活动失败'));
     }
   };
 
@@ -181,23 +211,27 @@ const Events: React.FC = () => {
           >
             查看
           </Button>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => showEditModal(record)}
-          >
-            编辑
-          </Button>
-          <Popconfirm
-            title="确定要删除这个活动吗？"
-            onConfirm={() => handleDelete(record.id)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button type="link" danger icon={<DeleteOutlined />}>
-              删除
-            </Button>
-          </Popconfirm>
+          {hasManagePermission() && (
+            <>
+              <Button
+                type="link"
+                icon={<EditOutlined />}
+                onClick={() => showEditModal(record)}
+              >
+                编辑
+              </Button>
+              <Popconfirm
+                title="确定要删除这个活动吗？"
+                onConfirm={() => handleDelete(record.id)}
+                okText="确定"
+                cancelText="取消"
+              >
+                <Button type="link" danger icon={<DeleteOutlined />}>
+                  删除
+                </Button>
+              </Popconfirm>
+            </>
+          )}
         </Space>
       ),
     },
@@ -251,13 +285,15 @@ const Events: React.FC = () => {
 
       {/* 操作按钮 */}
       <div style={{ marginBottom: 16 }}>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={showCreateModal}
-        >
-          创建活动
-        </Button>
+        {hasManagePermission() && (
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={showCreateModal}
+          >
+            创建活动
+          </Button>
+        )}
       </div>
 
       {/* 活动列表表格 */}

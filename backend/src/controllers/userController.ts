@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { UserModel, User } from '../models/User';
+import { UserModel } from '../models/User';
 
 export class UserController {
   // 用户注册
   static async register(req: Request, res: Response) {
     try {
-      const { username, password, email, role } = req.body;
+      const { username, password, email } = req.body;
       
       // 检查用户是否已存在
-      const existingUser = await User.findOne({ where: { username } });
+      const existingUser = await UserModel.findByUsername(username);
       if (existingUser) {
         return res.status(400).json({ message: '呼号已存在' });
       }
@@ -18,22 +18,18 @@ export class UserController {
       // 加密密码
       const hashedPassword = await bcrypt.hash(password, 10);
       
-      // 创建新用户，默认角色为S1
-      const user = await User.create({
+      // 创建新用户，默认等级为S1
+      const userId = await UserModel.create({
         username,
         password: hashedPassword,
         email,
-        role: 'S1' // 固定为S1，忽略前端传来的role
+        level: 'S1',
       });
+      const user = await UserModel.findById(userId);
 
       res.status(201).json({ 
         message: '注册成功',
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          role: user.role
-        }
+        user,
       });
     } catch (error) {
       console.error('注册错误:', error);
@@ -64,8 +60,8 @@ export class UserController {
       }
 
       // 验证密码
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
         return res.status(401).json({
           success: false,
           message: '呼号或密码错误'
@@ -73,7 +69,7 @@ export class UserController {
       }
 
       // 生成JWT令牌
-      const jwtSecret = process.env.JWT_SECRET || 'default-secret';
+      const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
       const token = jwt.sign(
         { 
           userId: user.id, 
