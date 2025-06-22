@@ -57,6 +57,12 @@ export const userAPI = {
 
   // 获取所有用户（管理员）
   getAllUsers: () => api.get('/users/all'),
+
+  // 更新用户信息（管理员）
+  updateUser: (id: number, data: any) => api.put(`/users/${id}`, data),
+
+  // 删除用户（管理员）
+  deleteUser: (id: number) => api.delete(`/users/${id}`),
 };
 
 // 活动相关API（待实现）
