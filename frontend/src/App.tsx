@@ -9,6 +9,7 @@ import Events from './pages/Events';
 import EventDetail from './pages/EventDetail';
 import Positions from './pages/Positions';
 import MySignups from './pages/MySignups';
+import Users from './pages/Users';
 import Layout from './components/Layout';
 import './App.css';
 
@@ -53,7 +54,7 @@ function App() {
             <Route path="events/:id" element={<EventDetail />} />
             <Route path="events/:eventId/positions" element={<Positions />} />
             <Route path="positions" element={<MySignups />} />
-            <Route path="users" element={<div>用户管理页面（待开发）</div>} />
+            <Route path="users" element={<Users />} />
             <Route path="profile" element={<div>个人资料页面（待开发）</div>} />
             <Route path="settings" element={<div>设置页面（待开发）</div>} />
           </Route>

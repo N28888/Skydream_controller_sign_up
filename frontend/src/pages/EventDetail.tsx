@@ -20,6 +20,7 @@ import {
   Input,
   Select,
   Popconfirm,
+  Alert,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -58,22 +59,40 @@ const EventDetail: React.FC = () => {
     
     setLoading(true);
     try {
-      const [eventResponse, positionsResponse, userResponse, supervisorsResponse] = await Promise.all([
+      // 先获取活动详情和用户信息
+      const [eventResponse, userResponse] = await Promise.all([
         eventAPI.getEvent(parseInt(id)),
-        positionAPI.getPositions(parseInt(id)),
         userAPI.getProfile(),
-        userAPI.getAllUsers(),
       ]);
       
       setEvent(eventResponse.data.data);
-      setPositions(positionsResponse.data.data || []);
       setCurrentUser(userResponse.data.data);
       
-      // 过滤出有监督权限的用户
-      const supervisorUsers = supervisorsResponse.data.data.filter((user: User) => 
-        ['I1', 'I2', 'I3', 'SUP', 'ADM'].includes(user.level)
-      );
-      setSupervisors(supervisorUsers);
+      // 获取席位列表
+      try {
+        const positionsResponse = await positionAPI.getPositions(parseInt(id));
+        setPositions(positionsResponse.data.data || []);
+      } catch (error) {
+        console.error('获取席位列表失败:', error);
+        setPositions([]);
+      }
+      
+      // 只有管理员和教员才能获取监督员列表
+      const userLevel = userResponse.data.data?.level;
+      if (userLevel && ['I1', 'I2', 'I3', 'SUP', 'ADM'].includes(userLevel)) {
+        try {
+          const supervisorsResponse = await userAPI.getAllUsers();
+          const supervisorUsers = supervisorsResponse.data.data.filter((user: User) => 
+            ['I1', 'I2', 'I3', 'SUP', 'ADM'].includes(user.level)
+          );
+          setSupervisors(supervisorUsers);
+        } catch (error) {
+          console.error('获取监督员列表失败:', error);
+          setSupervisors([]);
+        }
+      } else {
+        setSupervisors([]);
+      }
     } catch (error) {
       message.error('获取活动详情失败');
       console.error('获取活动详情失败:', error);
@@ -441,13 +460,28 @@ const EventDetail: React.FC = () => {
               label="监督员"
               rules={[{ required: true, message: '请选择监督员' }]}
             >
-              <Select placeholder="请选择监督员">
-                {supervisors.map(supervisor => (
-                  <Option key={supervisor.id} value={supervisor.username}>
-                    {supervisor.username} ({supervisor.level})
-                  </Option>
-                ))}
-              </Select>
+              {supervisors.length > 0 ? (
+                <Select placeholder="请选择监督员">
+                  {supervisors.map(supervisor => (
+                    <Option key={supervisor.id} value={supervisor.username}>
+                      {supervisor.username} ({supervisor.level})
+                    </Option>
+                  ))}
+                </Select>
+              ) : (
+                <div>
+                  <Alert
+                    message="无法获取监督员列表"
+                    description="请联系管理员或教员为您指定监督员"
+                    type="warning"
+                    showIcon
+                  />
+                  <Input
+                    placeholder="请输入监督员用户名"
+                    style={{ marginTop: 8 }}
+                  />
+                </div>
+              )}
             </Form.Item>
           )}
 

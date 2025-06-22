@@ -192,4 +192,123 @@ export class UserController {
       });
     }
   }
+
+  // 更新用户信息（管理员权限）
+  static async updateUser(req: Request, res: Response) {
+    try {
+      const userLevel = (req as any).user?.level;
+      if (!userLevel || !['SUP', 'ADM'].includes(userLevel)) {
+        return res.status(403).json({
+          success: false,
+          message: '权限不足'
+        });
+      }
+
+      const userId = Number(req.params.id);
+      const updates = req.body;
+
+      // 验证等级是否有效
+      if (updates.level) {
+        const validLevels = ['S1', 'S2', 'S3', 'C1', 'C2', 'C3', 'I1', 'I2', 'I3', 'SUP', 'ADM'];
+        if (!validLevels.includes(updates.level)) {
+          return res.status(400).json({
+            success: false,
+            message: '无效的管制员等级'
+          });
+        }
+      }
+
+      // 检查用户是否存在
+      const existingUser = await UserModel.findById(userId);
+      if (!existingUser) {
+        return res.status(404).json({
+          success: false,
+          message: '用户不存在'
+        });
+      }
+
+      // 如果更新密码，需要加密
+      if (updates.password) {
+        const saltRounds = 10;
+        updates.password = await bcrypt.hash(updates.password, saltRounds);
+      }
+
+      // 更新用户
+      const success = await UserModel.update(userId, updates);
+      if (!success) {
+        return res.status(500).json({
+          success: false,
+          message: '更新用户失败'
+        });
+      }
+
+      // 获取更新后的用户信息
+      const updatedUser = await UserModel.findById(userId);
+
+      res.json({
+        success: true,
+        message: '用户更新成功',
+        data: updatedUser
+      });
+    } catch (error) {
+      console.error('更新用户错误:', error);
+      res.status(500).json({
+        success: false,
+        message: '服务器内部错误'
+      });
+    }
+  }
+
+  // 删除用户（管理员权限）
+  static async deleteUser(req: Request, res: Response) {
+    try {
+      const userLevel = (req as any).user?.level;
+      if (!userLevel || !['SUP', 'ADM'].includes(userLevel)) {
+        return res.status(403).json({
+          success: false,
+          message: '权限不足'
+        });
+      }
+
+      const userId = Number(req.params.id);
+      const currentUserId = (req as any).user?.userId;
+
+      // 不能删除自己
+      if (userId === currentUserId) {
+        return res.status(400).json({
+          success: false,
+          message: '不能删除自己的账户'
+        });
+      }
+
+      // 检查用户是否存在
+      const existingUser = await UserModel.findById(userId);
+      if (!existingUser) {
+        return res.status(404).json({
+          success: false,
+          message: '用户不存在'
+        });
+      }
+
+      // 删除用户
+      const success = await UserModel.delete(userId);
+      if (!success) {
+        return res.status(500).json({
+          success: false,
+          message: '删除用户失败'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: '用户删除成功'
+      });
+    } catch (error) {
+      console.error('删除用户错误:', error);
+      res.status(500).json({
+        success: false,
+        message: '服务器内部错误'
+      });
+    }
+  }
 } 

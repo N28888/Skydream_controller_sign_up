@@ -79,4 +79,13 @@ export class UserModel {
     );
     return rows as UserWithoutPassword[];
   }
+
+  // 删除用户
+  static async delete(id: number): Promise<boolean> {
+    const [result] = await pool.execute(
+      'DELETE FROM users WHERE id = ?',
+      [id]
+    );
+    return (result as any).affectedRows > 0;
+  }
 } 
