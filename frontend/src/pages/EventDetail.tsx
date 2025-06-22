@@ -46,12 +46,8 @@ const EventDetail: React.FC = () => {
   const navigate = useNavigate();
   const [event, setEvent] = useState<Event | null>(null);
   const [positions, setPositions] = useState<Position[]>([]);
-  const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [supervisors, setSupervisors] = useState<User[]>([]);
-  const [signupModalVisible, setSignupModalVisible] = useState(false);
-  const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
-  const [signupForm] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
   // 获取活动详情
   const fetchEventDetail = async () => {
@@ -75,23 +71,6 @@ const EventDetail: React.FC = () => {
       } catch (error) {
         console.error('获取席位列表失败:', error);
         setPositions([]);
-      }
-      
-      // 只有管理员和教员才能获取监督员列表
-      const userLevel = userResponse.data.data?.level;
-      if (userLevel && ['I1', 'I2', 'I3', 'SUP', 'ADM'].includes(userLevel)) {
-        try {
-          const supervisorsResponse = await userAPI.getAllUsers();
-          const supervisorUsers = supervisorsResponse.data.data.filter((user: User) => 
-            ['I1', 'I2', 'I3', 'SUP', 'ADM'].includes(user.level)
-          );
-          setSupervisors(supervisorUsers);
-        } catch (error) {
-          console.error('获取监督员列表失败:', error);
-          setSupervisors([]);
-        }
-      } else {
-        setSupervisors([]);
       }
     } catch (error) {
       message.error('获取活动详情失败');
@@ -152,11 +131,6 @@ const EventDetail: React.FC = () => {
     return permissions[currentUser.level]?.includes(positionType) || false;
   };
 
-  // 检查是否需要指定监督员
-  const needsSupervisor = () => {
-    return currentUser && ['S1', 'S2', 'S3'].includes(currentUser.level);
-  };
-
   // 处理席位报名
   const handleSignup = async (position: Position) => {
     if (!currentUser) {
@@ -169,22 +143,15 @@ const EventDetail: React.FC = () => {
       return;
     }
 
-    if (needsSupervisor()) {
-      setSelectedPosition(position);
-      setSignupModalVisible(true);
-    } else {
-      await performSignup(position.id, {});
-    }
+    // 直接报名，不需要指定监督员
+    await performSignup(position.id, {});
   };
 
   // 执行报名
-  const performSignup = async (positionId: number, signupData: SignupForm) => {
+  const performSignup = async (positionId: number, signupData: any) => {
     try {
       await positionAPI.signupPosition(positionId, signupData);
       message.success('席位报名成功');
-      setSignupModalVisible(false);
-      setSelectedPosition(null);
-      signupForm.resetFields();
       fetchEventDetail(); // 刷新数据
     } catch (error: any) {
       message.error(error.response?.data?.message || '报名失败');
@@ -199,13 +166,6 @@ const EventDetail: React.FC = () => {
       fetchEventDetail(); // 刷新数据
     } catch (error: any) {
       message.error(error.response?.data?.message || '取消报名失败');
-    }
-  };
-
-  // 处理报名表单提交
-  const handleSignupSubmit = async (values: SignupForm) => {
-    if (selectedPosition) {
-      await performSignup(selectedPosition.id, values);
     }
   };
 
@@ -356,9 +316,6 @@ const EventDetail: React.FC = () => {
                         position.is_taken ? (
                           <Text type="secondary">
                             报名人: {position.taken_by_username} ({position.taken_by_level})
-                            {position.student_supervised && (
-                              <span> | 监督员: {position.student_supervised}</span>
-                            )}
                           </Text>
                         ) : (
                           <Text type="success">可报名</Text>
@@ -431,78 +388,6 @@ const EventDetail: React.FC = () => {
           </Card>
         </Col>
       </Row>
-
-      {/* 报名模态框 */}
-      <Modal
-        title="报名席位"
-        open={signupModalVisible}
-        onCancel={() => {
-          setSignupModalVisible(false);
-          setSelectedPosition(null);
-          signupForm.resetFields();
-        }}
-        footer={null}
-      >
-        <Form
-          form={signupForm}
-          layout="vertical"
-          onFinish={handleSignupSubmit}
-        >
-          {selectedPosition && (
-            <div style={{ marginBottom: 16 }}>
-              <Text>您正在报名: <Text strong>{selectedPosition.position_name}</Text></Text>
-            </div>
-          )}
-          
-          {needsSupervisor() && (
-            <Form.Item
-              name="student_supervised"
-              label="监督员"
-              rules={[{ required: true, message: '请选择监督员' }]}
-            >
-              {supervisors.length > 0 ? (
-                <Select placeholder="请选择监督员">
-                  {supervisors.map(supervisor => (
-                    <Option key={supervisor.id} value={supervisor.username}>
-                      {supervisor.username} ({supervisor.level})
-                    </Option>
-                  ))}
-                </Select>
-              ) : (
-                <div>
-                  <Alert
-                    message="无法获取监督员列表"
-                    description="请联系管理员或教员为您指定监督员"
-                    type="warning"
-                    showIcon
-                  />
-                  <Input
-                    placeholder="请输入监督员用户名"
-                    style={{ marginTop: 8 }}
-                  />
-                </div>
-              )}
-            </Form.Item>
-          )}
-
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit">
-                确认报名
-              </Button>
-              <Button
-                onClick={() => {
-                  setSignupModalVisible(false);
-                  setSelectedPosition(null);
-                  signupForm.resetFields();
-                }}
-              >
-                取消
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 };
