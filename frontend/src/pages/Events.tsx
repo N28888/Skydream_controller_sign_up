@@ -347,24 +347,11 @@ const Events: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="airac"
-                label="AIRAC周期"
-                rules={[{ required: true, message: '请选择AIRAC周期' }]}
+                name="Recommand AIRAC"
+                label="推荐使用AIRAC周期"
+                rules={[{ required: true, message: '请输入推荐使用的AIRAC周期' }]}
               >
-                <Select placeholder="选择AIRAC周期">
-                  <Option value="2301">2301</Option>
-                  <Option value="2302">2302</Option>
-                  <Option value="2303">2303</Option>
-                  <Option value="2304">2304</Option>
-                  <Option value="2305">2305</Option>
-                  <Option value="2306">2306</Option>
-                  <Option value="2307">2307</Option>
-                  <Option value="2308">2308</Option>
-                  <Option value="2309">2309</Option>
-                  <Option value="2310">2310</Option>
-                  <Option value="2311">2311</Option>
-                  <Option value="2312">2312</Option>
-                </Select>
+                <Input placeholder="如: 2501" />
               </Form.Item>
             </Col>
           </Row>
