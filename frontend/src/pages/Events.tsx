@@ -340,14 +340,8 @@ const Events: React.FC = () => {
                 rules={[{ required: true, message: '请选择飞行高度' }]}
               >
                 <Select placeholder="选择飞行高度">
-                  <Option value="FL180">FL180</Option>
-                  <Option value="FL200">FL200</Option>
-                  <Option value="FL240">FL240</Option>
-                  <Option value="FL280">FL280</Option>
-                  <Option value="FL300">FL300</Option>
-                  <Option value="FL320">FL320</Option>
-                  <Option value="FL340">FL340</Option>
-                  <Option value="FL360">FL360</Option>
+                  <Option value="向西飞行, 请使用双数高度层">向西飞行, 请使用双数高度层</Option>
+                  <Option value="向东飞行, 请使用单数高度层">向东飞行, 请使用单数高度层</Option>
                 </Select>
               </Form.Item>
             </Col>
