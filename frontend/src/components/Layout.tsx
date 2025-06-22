@@ -64,7 +64,7 @@ const MainLayout: React.FC = () => {
     {
       key: '/positions',
       icon: <TeamOutlined />,
-      label: '席位报名',
+      label: '我的报名',
     },
     {
       key: '/users',

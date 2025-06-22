@@ -55,6 +55,8 @@ export interface Position {
   position_type: 'DEL' | 'GND' | 'TWR' | 'APP' | 'CTR' | 'FSS';
   is_taken: boolean;
   taken_by?: number;
+  taken_by_username?: string;
+  taken_by_level?: string;
   student_supervised?: string;
   created_at: string;
   updated_at: string;
@@ -63,6 +65,15 @@ export interface Position {
 export interface PositionForm {
   position_name: string;
   position_type: 'DEL' | 'GND' | 'TWR' | 'APP' | 'CTR' | 'FSS';
+}
+
+export interface PositionBatchForm {
+  event_id: number;
+  positions: PositionForm[];
+}
+
+export interface SignupForm {
+  student_supervised?: string;
 }
 
 // API响应类型

@@ -60,7 +60,7 @@ body {
   background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
+  }
 
 /* 输入框样式优化 */
 .ant-input, .ant-input-password {
@@ -119,8 +119,8 @@ body {
     position: fixed;
     height: 100vh;
     z-index: 999;
-  }
-  
+}
+
   .ant-layout-content {
     margin-left: 0 !important;
   }

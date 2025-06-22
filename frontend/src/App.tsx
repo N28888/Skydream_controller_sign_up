@@ -5,6 +5,10 @@ import zhCN from 'antd/locale/zh_CN';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Events from './pages/Events';
+import EventDetail from './pages/EventDetail';
+import Positions from './pages/Positions';
+import MySignups from './pages/MySignups';
 import Layout from './components/Layout';
 import './App.css';
 
@@ -45,8 +49,10 @@ function App() {
           }>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="events" element={<div>活动管理页面（待开发）</div>} />
-            <Route path="positions" element={<div>席位报名页面（待开发）</div>} />
+            <Route path="events" element={<Events />} />
+            <Route path="events/:id" element={<EventDetail />} />
+            <Route path="events/:eventId/positions" element={<Positions />} />
+            <Route path="positions" element={<MySignups />} />
             <Route path="users" element={<div>用户管理页面（待开发）</div>} />
             <Route path="profile" element={<div>个人资料页面（待开发）</div>} />
             <Route path="settings" element={<div>设置页面（待开发）</div>} />

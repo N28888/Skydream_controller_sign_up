@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes';
+import eventRoutes from './routes/eventRoutes';
+import positionRoutes from './routes/positionRoutes';
 
 // 加载环境变量
 dotenv.config();
@@ -33,6 +35,8 @@ app.get('/health', (req, res) => {
 
 // API路由
 app.use('/api/users', userRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api', positionRoutes);
 
 // 启动服务器
 app.listen(PORT, () => {

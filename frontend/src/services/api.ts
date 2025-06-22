@@ -77,10 +77,22 @@ export const eventAPI = {
   deleteEvent: (id: number) => api.delete(`/events/${id}`),
 };
 
-// 席位相关API（待实现）
+// 席位相关API
 export const positionAPI = {
   // 获取席位列表
   getPositions: (eventId: number) => api.get(`/events/${eventId}/positions`),
+
+  // 创建席位（管理员）
+  createPosition: (data: any) => api.post('/positions', data),
+
+  // 批量创建席位（管理员）
+  createBatchPositions: (data: any) => api.post('/positions/batch', data),
+
+  // 更新席位（管理员）
+  updatePosition: (id: number, data: any) => api.put(`/positions/${id}`, data),
+
+  // 删除席位（管理员）
+  deletePosition: (id: number) => api.delete(`/positions/${id}`),
 
   // 报名席位
   signupPosition: (positionId: number, data?: any) =>
@@ -89,6 +101,9 @@ export const positionAPI = {
   // 取消报名
   cancelSignup: (positionId: number) =>
     api.delete(`/positions/${positionId}/signup`),
+
+  // 获取用户的报名记录
+  getMySignups: () => api.get('/positions/my-signups'),
 };
 
 export default api; 
