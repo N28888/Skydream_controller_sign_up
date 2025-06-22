@@ -7,69 +7,37 @@ export class UserController {
   // 用户注册
   static async register(req: Request, res: Response) {
     try {
-      const { username, email, password, level } = req.body;
-
-      // 验证必填字段
-      if (!username || !email || !password || !level) {
-        return res.status(400).json({
-          success: false,
-          message: '用户名、邮箱、密码和等级都是必填项'
-        });
-      }
-
-      // 验证等级是否有效
-      const validLevels = ['S1', 'S2', 'S3', 'C1', 'C2', 'C3', 'I1', 'I2', 'I3', 'SUP', 'ADM'];
-      if (!validLevels.includes(level)) {
-        return res.status(400).json({
-          success: false,
-          message: '无效的管制员等级'
-        });
-      }
-
-      // 检查用户名是否已存在
-      const existingUser = await UserModel.findByUsername(username);
+      const { username, password, email, role } = req.body;
+      
+      // 检查用户是否已存在
+      const existingUser = await User.findOne({ where: { username } });
       if (existingUser) {
-        return res.status(400).json({
-          success: false,
-          message: '用户名已存在'
-        });
-      }
-
-      // 检查邮箱是否已存在
-      const existingEmail = await UserModel.findByEmail(email);
-      if (existingEmail) {
-        return res.status(400).json({
-          success: false,
-          message: '邮箱已被注册'
-        });
+        return res.status(400).json({ message: '呼号已存在' });
       }
 
       // 加密密码
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-      // 创建用户
-      const userId = await UserModel.create({
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // 创建新用户，默认角色为S1
+      const user = await User.create({
         username,
-        email,
         password: hashedPassword,
-        level
+        email,
+        role: 'S1' // 固定为S1，忽略前端传来的role
       });
 
-      // 获取用户信息（不包含密码）
-      const user = await UserModel.findById(userId);
-
-      res.status(201).json({
-        success: true,
-        message: '用户注册成功',
-        data: user
+      res.status(201).json({ 
+        message: '注册成功',
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          role: user.role
+        }
       });
     } catch (error) {
       console.error('注册错误:', error);
-      res.status(500).json({
-        success: false,
-        message: '服务器内部错误'
-      });
+      res.status(500).json({ message: '注册失败' });
     }
   }
 
@@ -82,7 +50,7 @@ export class UserController {
       if (!username || !password) {
         return res.status(400).json({
           success: false,
-          message: '用户名和密码都是必填项'
+          message: '呼号和密码都是必填项'
         });
       }
 
@@ -91,7 +59,7 @@ export class UserController {
       if (!user) {
         return res.status(401).json({
           success: false,
-          message: '用户名或密码错误'
+          message: '呼号或密码错误'
         });
       }
 
@@ -100,7 +68,7 @@ export class UserController {
       if (!isPasswordValid) {
         return res.status(401).json({
           success: false,
-          message: '用户名或密码错误'
+          message: '呼号或密码错误'
         });
       }
 

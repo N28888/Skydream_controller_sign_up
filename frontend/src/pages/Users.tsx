@@ -141,13 +141,7 @@ const Users: React.FC = () => {
   // 表格列定义
   const columns = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 80,
-    },
-    {
-      title: '用户名',
+      title: '呼号',
       dataIndex: 'username',
       key: 'username',
       render: (text: string) => (
@@ -163,7 +157,7 @@ const Users: React.FC = () => {
       key: 'email',
     },
     {
-      title: '等级',
+      title: '权限',
       dataIndex: 'level',
       key: 'level',
       render: (level: string) => (
@@ -268,13 +262,13 @@ const Users: React.FC = () => {
         >
           <Form.Item
             name="username"
-            label="用户名"
+            label="呼号"
             rules={[
-              { required: true, message: '请输入用户名' },
-              { min: 2, max: 20, message: '用户名长度在2-20个字符之间' },
+              { required: true, message: '请输入呼号' },
+              { min: 2, max: 20, message: '呼号长度在2-20个字符之间' },
             ]}
           >
-            <Input placeholder="请输入用户名" />
+            <Input placeholder="请输入呼号" />
           </Form.Item>
 
           <Form.Item

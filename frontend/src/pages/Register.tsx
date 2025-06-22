@@ -45,7 +45,7 @@ const Register: React.FC = () => {
           <Title level={2} style={{ color: '#1890ff', marginBottom: '8px' }}>
             <UserAddOutlined /> 管制员注册
           </Title>
-          <Text type="secondary">加入虚拟连飞平台管制员团队</Text>
+          <Text type="secondary">注册Skydream管制员活动报名平台</Text>
         </div>
 
         <Form
@@ -59,13 +59,13 @@ const Register: React.FC = () => {
             name="username"
             label="用户名"
             rules={[
-              { required: true, message: '请输入用户名！' },
-              { min: 3, message: '用户名至少3个字符！' }
+              { required: true, message: '请输入4位呼号！' },
+              { pattern: /^\d{4}$/, message: '呼号必须是4位数字！' }
             ]}
           >
             <Input 
               prefix={<UserOutlined />} 
-              placeholder="请输入用户名"
+              placeholder="请输入四位呼号"
               style={{ borderRadius: '8px' }}
             />
           </Form.Item>
@@ -98,23 +98,6 @@ const Register: React.FC = () => {
               placeholder="请输入密码"
               style={{ borderRadius: '8px' }}
             />
-          </Form.Item>
-
-          <Form.Item
-            name="level"
-            label="管制员等级"
-            rules={[{ required: true, message: '请选择管制员等级！' }]}
-          >
-            <Select 
-              placeholder="请选择管制员等级"
-              style={{ borderRadius: '8px' }}
-            >
-              {LEVEL_OPTIONS.map(option => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
           </Form.Item>
 
           <Form.Item>
