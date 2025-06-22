@@ -86,7 +86,7 @@ const MainLayout: React.FC = () => {
           fontSize: collapsed ? '16px' : '18px',
           fontWeight: 'bold'
         }}>
-          {collapsed ? 'ATC' : '管制员系统'}
+          {collapsed ? 'Skydream' : '天梦活动报名系统'}
         </div>
         <Menu
           theme="dark"

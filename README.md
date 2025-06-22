@@ -1,6 +1,6 @@
 # Skydream Controller Sign Up Platform
 
-虚拟连飞平台管制员活动报名系统
+Skydreamclub管制员活动报名系统
 
 ## 项目结构
 

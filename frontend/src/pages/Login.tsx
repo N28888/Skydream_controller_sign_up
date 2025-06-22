@@ -50,7 +50,7 @@ const Login: React.FC = () => {
           <Title level={2} style={{ color: '#1890ff', marginBottom: '8px' }}>
             <LoginOutlined /> 管制员登录
           </Title>
-          <Text type="secondary">欢迎使用虚拟连飞平台管制员报名系统</Text>
+          <Text type="secondary">欢迎使用Skydream管制员活动报名系统</Text>
         </div>
 
         <Form
@@ -61,11 +61,11 @@ const Login: React.FC = () => {
         >
           <Form.Item
             name="username"
-            rules={[{ required: true, message: '请输入用户名！' }]}
+            rules={[{ required: true, message: '请输入呼号！' }]}
           >
             <Input 
               prefix={<UserOutlined />} 
-              placeholder="用户名" 
+              placeholder="呼号" 
               style={{ borderRadius: '8px' }}
             />
           </Form.Item>
