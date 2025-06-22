@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: skydream_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Skydream2024!@#
+      MYSQL_DATABASE: skydream_controller
+      MYSQL_USER: skydream_user
+      MYSQL_PASSWORD: SkydreamUser2024!@#
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/src/config/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - skydream_network
+
+  # 后端API服务
+  backend:
+    build: ./backend
+    container_name: skydream_backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: skydream_user
+      DB_PASSWORD: SkydreamUser2024!@#
+      DB_NAME: skydream_controller
+      JWT_SECRET: SkydreamJWTSecret2024!@#$%^&*()
+      PORT: 3001
+      CORS_ORIGIN: http://sj.yfanj.ca
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mysql
+    networks:
+      - skydream_network
+
+  # 前端服务
+  frontend:
+    build: ./frontend
+    container_name: skydream_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - skydream_network
+
+volumes:
+  mysql_data:
+
+networks:
+  skydream_network:
+    driver: bridge 
