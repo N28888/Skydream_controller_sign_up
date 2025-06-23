@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { EventController } from '../controllers/eventController';
+import { PositionController } from '../controllers/positionController';
 import { authenticateToken, requireSupervisor } from '../middleware/auth';
 
 const router = Router();
@@ -13,6 +14,8 @@ const asyncHandler = (fn: any) => (req: Request, res: Response, next: NextFuncti
 router.get('/', asyncHandler(EventController.list));
 // 获取活动详情（所有人可见）
 router.get('/:id', asyncHandler(EventController.detail));
+// 获取活动的所有席位（所有人可见）
+router.get('/:eventId/positions', asyncHandler(PositionController.getEventPositions));
 
 // 创建活动（仅SUP/ADM）
 router.post('/', authenticateToken, requireSupervisor, asyncHandler(EventController.create));

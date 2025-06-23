@@ -22,7 +22,14 @@ export class PositionModel {
   static async create(position: Position): Promise<number> {
     const [result] = await pool.execute(
       'INSERT INTO positions (event_id, position_name, position_type, is_taken, taken_by, student_supervised) VALUES (?, ?, ?, ?, ?, ?)',
-      [position.event_id, position.position_name, position.position_type, position.is_taken, position.taken_by, position.student_supervised]
+      [
+        position.event_id,
+        position.position_name,
+        position.position_type,
+        position.is_taken,
+        typeof position.taken_by === 'undefined' ? null : position.taken_by,
+        typeof position.student_supervised === 'undefined' ? null : position.student_supervised
+      ]
     );
     return (result as any).insertId;
   }
@@ -99,7 +106,7 @@ export class PositionModel {
       // 更新席位状态
       await connection.execute(
         'UPDATE positions SET is_taken = TRUE, taken_by = ?, student_supervised = ? WHERE id = ?',
-        [userId, studentSupervised, positionId]
+        [userId, typeof studentSupervised === 'undefined' ? null : studentSupervised, positionId]
       );
 
       // 创建报名记录

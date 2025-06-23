@@ -48,6 +48,7 @@ const EventDetail: React.FC = () => {
   const [positions, setPositions] = useState<Position[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const [signupLoading, setSignupLoading] = useState<number | null>(null);
 
   // 获取活动详情
   const fetchEventDetail = async () => {
@@ -137,13 +138,11 @@ const EventDetail: React.FC = () => {
       message.error('请先登录');
       return;
     }
-
     if (!canSignupPosition(position.position_type)) {
       message.error(`您的等级 ${currentUser.level} 无法报名 ${getPositionTypeName(position.position_type)} 席位`);
       return;
     }
-
-    // 直接报名，不需要指定监督员
+    setSignupLoading(position.id);
     await performSignup(position.id, {});
   };
 
@@ -153,10 +152,8 @@ const EventDetail: React.FC = () => {
       console.log('开始报名席位:', positionId);
       console.log('报名数据:', signupData);
       console.log('当前用户:', currentUser);
-      
       const response = await positionAPI.signupPosition(positionId, signupData);
       console.log('报名响应:', response);
-      
       message.success('席位报名成功');
       fetchEventDetail(); // 刷新数据
     } catch (error: any) {
@@ -167,6 +164,8 @@ const EventDetail: React.FC = () => {
         data: error.response?.data
       });
       message.error(error.response?.data?.message || '报名失败');
+    } finally {
+      setSignupLoading(null);
     }
   };
 
@@ -291,8 +290,9 @@ const EventDetail: React.FC = () => {
                       ) : (
                         <Button
                           type={position.is_taken ? 'default' : 'primary'}
-                          disabled={position.is_taken || !canSignupPosition(position.position_type)}
+                          disabled={position.is_taken || !canSignupPosition(position.position_type) || signupLoading === position.id}
                           size="small"
+                          loading={signupLoading === position.id}
                           onClick={() => handleSignup(position)}
                         >
                           {position.is_taken ? '已报名' : '报名'}

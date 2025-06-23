@@ -41,6 +41,7 @@ const Positions: React.FC = () => {
   const [editingPosition, setEditingPosition] = useState<Position | null>(null);
   const [form] = Form.useForm();
   const [batchForm] = Form.useForm();
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   // 获取席位列表
   const fetchPositions = async () => {
@@ -70,25 +71,47 @@ const Positions: React.FC = () => {
   // 处理表单提交
   const handleSubmit = async (values: PositionForm) => {
     if (!eventId) return;
-    
+    setSubmitLoading(true);
     try {
       if (editingPosition) {
-        await positionAPI.updatePosition(editingPosition.id, values);
-        message.success('席位更新成功');
+        console.log('开始调用API更新席位:', editingPosition.id);
+        const response = await positionAPI.updatePosition(editingPosition.id, values);
+        console.log('API响应:', response);
+        if (response.data.success) {
+          message.success('席位更新成功');
+        } else {
+          message.error(response.data.message || '更新失败');
+          return;
+        }
       } else {
-        await positionAPI.createPosition({
+        console.log('开始调用API创建席位');
+        const response = await positionAPI.createPosition({
           ...values,
           event_id: parseInt(eventId),
         });
-        message.success('席位创建成功');
+        console.log('API响应:', response);
+        if (response.data.success) {
+          message.success('席位创建成功');
+        } else {
+          message.error(response.data.message || '创建失败');
+          return;
+        }
       }
-
       setModalVisible(false);
       setEditingPosition(null);
       form.resetFields();
       fetchPositions();
     } catch (error: any) {
+      console.error('席位操作时发生错误:', error);
+      console.error('错误详情:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        config: error.config
+      });
       message.error(error.response?.data?.message || (editingPosition ? '更新席位失败' : '创建席位失败'));
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -357,7 +380,7 @@ const Positions: React.FC = () => {
             label="席位名称"
             rules={[{ required: true, message: '请输入席位名称' }]}
           >
-            <Input placeholder="如: 北京塔台" />
+            <Input placeholder="如: ZSHA_CTR" />
           </Form.Item>
 
           <Form.Item
@@ -376,7 +399,7 @@ const Positions: React.FC = () => {
 
           <Form.Item>
             <Space>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" loading={submitLoading}>
                 {editingPosition ? '更新' : '创建'}
               </Button>
               <Button
