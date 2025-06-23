@@ -36,4 +36,7 @@ router.delete('/:id/signup', asyncHandler(PositionController.cancelSignup));
 // 获取用户的报名记录
 router.get('/my-signups', asyncHandler(PositionController.getUserSignups));
 
+// 获取监管学员数量
+router.get('/supervised-students-count', asyncHandler(PositionController.getSupervisedStudentsCount));
+
 export default router; 

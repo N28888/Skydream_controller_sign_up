@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, message, Typography, Divider } from 'antd';
+import { Form, Input, Button, Card, message, Typography, Divider, Modal } from 'antd';
 import { UserOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import { userAPI } from '../services/api';
@@ -14,7 +14,10 @@ const Login: React.FC = () => {
   const onFinish = async (values: LoginForm) => {
     setLoading(true);
     try {
+      console.log('开始登录，用户名:', values.username);
       const response = await userAPI.login(values);
+      console.log('登录成功，响应:', response);
+      
       const { token, user } = response.data.data;
       
       // 保存token和用户信息
@@ -24,7 +27,39 @@ const Login: React.FC = () => {
       message.success('登录成功！');
       navigate('/dashboard');
     } catch (error: any) {
-      message.error(error.response?.data?.message || '登录失败，请重试');
+      console.error('登录错误详情:', {
+        error: error,
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
+      
+      // 根据不同的错误情况显示不同的提示
+      if (error.response?.status === 401 || 
+          (error.response?.data?.message && error.response.data.message.includes('呼号或密码错误'))) {
+        console.log('显示登录错误确认弹窗');
+        Modal.confirm({
+          title: '登录失败',
+          content: '用户名或密码错误',
+          okText: '确定',
+          cancelText: '取消',
+          onOk() {
+            console.log('用户确认了登录错误');
+          },
+          onCancel() {
+            console.log('用户取消了登录错误确认');
+          },
+        });
+      } else if (error.response?.data?.message) {
+        console.log('显示后端错误消息:', error.response.data.message);
+        message.error(error.response.data.message);
+      } else if (error.message) {
+        console.log('显示错误消息:', error.message);
+        message.error(error.message);
+      } else {
+        console.log('显示默认错误消息');
+        message.error('登录失败，请检查网络连接后重试');
+      }
     } finally {
       setLoading(false);
     }

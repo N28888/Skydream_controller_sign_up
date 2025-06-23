@@ -213,4 +213,16 @@ export class PositionModel {
     );
     return rows as PositionWithUser[];
   }
+
+  // 获取监管学员数量
+  static async getSupervisedStudentsCount(supervisorUsername: string): Promise<number> {
+    const [rows] = await pool.execute(
+      `SELECT COUNT(*) as count 
+       FROM positions p 
+       WHERE p.student_supervised = ? AND p.is_taken = TRUE`,
+      [supervisorUsername]
+    );
+    const result = rows as any[];
+    return result[0]?.count || 0;
+  }
 } 

@@ -176,7 +176,7 @@ const Events: React.FC = () => {
             <Tag color="green">{record.arrival_airport}</Tag>
           </div>
           <div style={{ fontSize: '12px', color: '#666' }}>
-            航线: {record.route}
+            航路: {record.route}
           </div>
         </Space>
       ),
@@ -194,7 +194,7 @@ const Events: React.FC = () => {
       render: (text: string) => <Tag color="purple">{text}</Tag>,
     },
     {
-      title: '活动时间',
+      title: '活动时间(UTC+8)',
       key: 'datetime',
       render: (record: Event) => (
         <Space direction="vertical" size="small">
@@ -337,8 +337,8 @@ const Events: React.FC = () => {
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{
-            flight_level: 'FL300',
-            airac: '2301',
+            flight_level: '请选择飞行方向',
+            airac: '2501',
           }}
         >
           <Form.Item
@@ -372,8 +372,8 @@ const Events: React.FC = () => {
 
           <Form.Item
             name="route"
-            label="航线"
-            rules={[{ required: true, message: '请输入航线' }]}
+            label="航路(请使用空格分隔)"
+            rules={[{ required: true, message: '请输入航路' }]}
           >
             <Input placeholder="如: A461 B330" />
           </Form.Item>
@@ -393,7 +393,7 @@ const Events: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="recommand_airac"
+                name="airac"
                 label="推荐使用AIRAC周期"
                 rules={[{ required: true, message: '请输入推荐使用的AIRAC周期' }]}
               >

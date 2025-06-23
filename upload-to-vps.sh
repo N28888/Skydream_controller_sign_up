@@ -26,5 +26,5 @@ rsync -avz --progress \
     --exclude '.env' \
     . $VPS_USER@$VPS_IP:$VPS_PATH
 
-echo "✅ 上传完成！"
-echo "滚去重启后端和前端!“
+echo "完事了!"
+echo "滚去重启后端和前端!"

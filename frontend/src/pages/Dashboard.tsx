@@ -1,24 +1,84 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Statistic, Typography, List, Avatar, Tag } from 'antd';
+import { Card, Row, Col, Statistic, Typography, List, Avatar, Tag, message, Space } from 'antd';
 import {
   UserOutlined,
   CalendarOutlined,
   TeamOutlined,
-  TrophyOutlined,
+  EnvironmentOutlined,
+  ClockCircleOutlined,
 } from '@ant-design/icons';
-import { User } from '../types';
+import { User, Event, Position } from '../types';
+import { userAPI, eventAPI, positionAPI } from '../services/api';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState({
+    totalEvents: 0,
+    mySignups: 0,
+    upcomingEvents: 0,
+  });
+  const [recentEvents, setRecentEvents] = useState<Event[]>([]);
+  const [mySignups, setMySignups] = useState<Position[]>([]);
+
+  // 获取用户信息
+  const fetchUserProfile = async () => {
+    try {
+      const response = await userAPI.getProfile();
+      setUser(response.data.data);
+    } catch (error) {
+      console.error('获取用户信息失败:', error);
+    }
+  };
+
+  // 获取统计数据
+  const fetchStats = async () => {
+    setLoading(true);
+    try {
+      // 获取所有活动
+      const eventsResponse = await eventAPI.getEvents();
+      const allEvents = eventsResponse.data.data || [];
+      
+      // 获取我的报名
+      const signupsResponse = await positionAPI.getMySignups();
+      const mySignupsData = signupsResponse.data.data || [];
+      
+      // 计算统计数据
+      const totalEvents = allEvents.length;
+      const mySignupsCount = mySignupsData.length;
+      const upcomingEvents = allEvents.filter((event: Event) => 
+        dayjs(event.event_date).isAfter(dayjs(), 'day')
+      ).length;
+
+      setStats({
+        totalEvents,
+        mySignups: mySignupsCount,
+        upcomingEvents,
+      });
+
+      // 获取最近5个活动
+      setRecentEvents(allEvents.slice(0, 5));
+      setMySignups(mySignupsData.slice(0, 5));
+    } catch (error) {
+      message.error('获取统计数据失败');
+      console.error('获取统计数据失败:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      setUser(JSON.parse(userStr));
-    }
+    fetchUserProfile();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchStats();
+    }
+  }, [user]);
 
   const getLevelColor = (level: string) => {
     const colors: { [key: string]: string } = {
@@ -39,19 +99,31 @@ const Dashboard: React.FC = () => {
 
   const getLevelText = (level: string) => {
     const texts: { [key: string]: string } = {
-      'S1': 'S1',
-      'S2': 'S2',
-      'S3': 'S3',
-      'C1': 'C1',
-      'C2': 'C2',
-      'C3': 'C3',
-      'I1': 'I1',
-      'I2': 'I2',
-      'I3': 'I3',
-      'SUP': 'SUP',
-      'ADM': 'ADM',
+      'S1': '学员1级',
+      'S2': '学员2级',
+      'S3': '学员3级',
+      'C1': '管制员1级',
+      'C2': '管制员2级',
+      'C3': '管制员3级',
+      'I1': '教员1级',
+      'I2': '教员2级',
+      'I3': '教员3级',
+      'SUP': '监督员',
+      'ADM': '管理员',
     };
     return texts[level] || level;
+  };
+
+  const getPositionTypeName = (type: string) => {
+    const names: { [key: string]: string } = {
+      DEL: '放行',
+      GND: '地面',
+      TWR: '塔台',
+      APP: '进近',
+      CTR: '区调',
+      FSS: '飞行服务站',
+    };
+    return names[type] || type;
   };
 
   return (
@@ -79,43 +151,36 @@ const Dashboard: React.FC = () => {
 
       {/* 统计卡片 */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={6}>
+        <Col span={8}>
           <Card>
             <Statistic
-              title="我的活动"
-              value={0}
+              title="即将举行的活动"
+              value={stats.upcomingEvents}
               prefix={<CalendarOutlined />}
               valueStyle={{ color: '#3f8600' }}
+              loading={loading}
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col span={8}>
           <Card>
             <Statistic
               title="已报名席位"
-              value={0}
+              value={stats.mySignups}
               prefix={<TeamOutlined />}
               valueStyle={{ color: '#1890ff' }}
+              loading={loading}
             />
           </Card>
         </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="监管学员"
-              value={0}
-              prefix={<TrophyOutlined />}
-              valueStyle={{ color: '#722ed1' }}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
+        <Col span={8}>
           <Card>
             <Statistic
               title="总活动数"
-              value={0}
+              value={stats.totalEvents}
               prefix={<CalendarOutlined />}
               valueStyle={{ color: '#cf1322' }}
+              loading={loading}
             />
           </Card>
         </Col>
@@ -126,32 +191,90 @@ const Dashboard: React.FC = () => {
         <Col span={12}>
           <Card title="最近活动" extra={<a href="/events">查看全部</a>}>
             <List
-              dataSource={[]}
-              renderItem={(item) => (
+              dataSource={recentEvents}
+              loading={loading}
+              renderItem={(event: Event) => (
                 <List.Item>
                   <List.Item.Meta
                     avatar={<Avatar icon={<CalendarOutlined />} />}
-                    title="暂无活动"
-                    description="还没有创建任何活动"
+                    title={
+                      <div>
+                        <Text strong>{event.title}</Text>
+                        <br />
+                        <Space size="small">
+                          <Tag color="blue" icon={<EnvironmentOutlined />}>
+                            {event.departure_airport}
+                          </Tag>
+                          <span>→</span>
+                          <Tag color="green" icon={<EnvironmentOutlined />}>
+                            {event.arrival_airport}
+                          </Tag>
+                        </Space>
+                      </div>
+                    }
+                    description={
+                      <div>
+                        <Text type="secondary">
+                          <ClockCircleOutlined /> {dayjs(event.event_date).format('YYYY年MM月DD日')} {dayjs(event.event_time, 'HH:mm:ss').format('HH:mm')}
+                        </Text>
+                        <br />
+                        <Text type="secondary">AIRAC: {event.airac}</Text>
+                      </div>
+                    }
                   />
                 </List.Item>
               )}
+              locale={{
+                emptyText: (
+                  <div style={{ textAlign: 'center', padding: '20px' }}>
+                    <CalendarOutlined style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }} />
+                    <div>暂无活动</div>
+                    <div style={{ color: '#999', fontSize: '12px' }}>还没有创建任何活动</div>
+                  </div>
+                )
+              }}
             />
           </Card>
         </Col>
         <Col span={12}>
-          <Card title="我的报名" extra={<a href="/positions">查看全部</a>}>
+          <Card title="我的报名" extra={<a href="/my-signups">查看全部</a>}>
             <List
-              dataSource={[]}
-              renderItem={(item) => (
+              dataSource={mySignups}
+              loading={loading}
+              renderItem={(position: Position) => (
                 <List.Item>
                   <List.Item.Meta
                     avatar={<Avatar icon={<TeamOutlined />} />}
-                    title="暂无报名"
-                    description="还没有报名任何席位"
+                    title={
+                      <div>
+                        <Text strong>{position.position_name}</Text>
+                        <Tag color="blue" style={{ marginLeft: 8 }}>
+                          {getPositionTypeName(position.position_type)}
+                        </Tag>
+                      </div>
+                    }
+                    description={
+                      <div>
+                        <Text type="secondary">活动ID: {position.event_id}</Text>
+                        {position.student_supervised && (
+                          <div>
+                            <Text type="secondary">监督员: {position.student_supervised}</Text>
+                          </div>
+                        )}
+                      </div>
+                    }
                   />
                 </List.Item>
               )}
+              locale={{
+                emptyText: (
+                  <div style={{ textAlign: 'center', padding: '20px' }}>
+                    <TeamOutlined style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }} />
+                    <div>暂无报名</div>
+                    <div style={{ color: '#999', fontSize: '12px' }}>还没有报名任何席位</div>
+                  </div>
+                )
+              }}
             />
           </Card>
         </Col>

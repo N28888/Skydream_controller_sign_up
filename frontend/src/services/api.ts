@@ -28,7 +28,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // 只有在非登录页面时才自动跳转
+    if (error.response?.status === 401 && window.location.pathname !== '/login') {
       // 清除token并跳转到登录页
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -110,6 +111,9 @@ export const positionAPI = {
 
   // 获取用户的报名记录
   getMySignups: () => api.get('/positions/my-signups'),
+
+  // 获取监管学员数量
+  getSupervisedStudentsCount: () => api.get('/positions/supervised-students-count'),
 };
 
 export default api; 
