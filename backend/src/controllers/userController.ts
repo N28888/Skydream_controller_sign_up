@@ -8,7 +8,7 @@ export class UserController {
   static async register(req: Request, res: Response) {
     try {
       const { username, password, email } = req.body;
-      
+
       // 检查用户是否已存在
       const existingUser = await UserModel.findByUsername(username);
       if (existingUser) {
@@ -17,7 +17,7 @@ export class UserController {
 
       // 加密密码
       const hashedPassword = await bcrypt.hash(password, 10);
-      
+
       // 创建新用户，默认等级为S1
       const userId = await UserModel.create({
         username,
@@ -27,7 +27,7 @@ export class UserController {
       });
       const user = await UserModel.findById(userId);
 
-      res.status(201).json({ 
+      res.status(201).json({
         message: '注册成功',
         user,
       });
