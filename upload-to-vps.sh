@@ -27,7 +27,4 @@ rsync -avz --progress \
     . $VPS_USER@$VPS_IP:$VPS_PATH
 
 echo "✅ 上传完成！"
-echo "🔧 下一步："
-echo "1. SSH连接到VPS: ssh $VPS_USER@$VPS_IP"
-echo "2. 进入项目目录: cd $VPS_PATH"
-echo "3. 进行后续部署操作（如安装依赖、启动服务等）" 
+echo "滚去重启后端和前端!“
