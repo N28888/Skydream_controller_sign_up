@@ -90,7 +90,7 @@ export interface LoginResponse {
 
 // 管制员等级选项
 export const LEVEL_OPTIONS = [
-  { label: 'S1, value: 'S1' },
+  { label: 'S1', value: 'S1' },
   { label: 'S2', value: 'S2' },
   { label: 'S3', value: 'S3' },
   { label: 'C1', value: 'C1' },
