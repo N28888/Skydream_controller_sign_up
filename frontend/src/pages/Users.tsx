@@ -150,7 +150,7 @@ const Users: React.FC = () => {
         console.log('响应数据:', response.data);
         
         if (response.data.success) {
-          message.success('用户更新成功');
+        message.success('用户更新成功');
         } else {
           message.error(response.data.message || '更新失败');
           return;

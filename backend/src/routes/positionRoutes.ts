@@ -16,24 +16,24 @@ router.get('/events/:eventId/positions', asyncHandler(PositionController.getEven
 router.use(authenticateToken);
 
 // 创建席位（需要管理员权限）
-router.post('/positions', requireAdmin, asyncHandler(PositionController.create));
+router.post('/', requireAdmin, asyncHandler(PositionController.create));
 
 // 批量创建席位（需要管理员权限）
-router.post('/positions/batch', requireAdmin, asyncHandler(PositionController.createBatch));
+router.post('/batch', requireAdmin, asyncHandler(PositionController.createBatch));
 
 // 更新席位（需要管理员权限）
-router.put('/positions/:id', requireAdmin, asyncHandler(PositionController.update));
+router.put('/:id', requireAdmin, asyncHandler(PositionController.update));
 
 // 删除席位（需要管理员权限）
-router.delete('/positions/:id', requireAdmin, asyncHandler(PositionController.delete));
+router.delete('/:id', requireAdmin, asyncHandler(PositionController.delete));
 
 // 报名席位
-router.post('/positions/:id/signup', asyncHandler(PositionController.signup));
+router.post('/:id/signup', asyncHandler(PositionController.signup));
 
 // 取消报名
-router.delete('/positions/:id/signup', asyncHandler(PositionController.cancelSignup));
+router.delete('/:id/signup', asyncHandler(PositionController.cancelSignup));
 
 // 获取用户的报名记录
-router.get('/positions/my-signups', asyncHandler(PositionController.getUserSignups));
+router.get('/my-signups', asyncHandler(PositionController.getUserSignups));
 
 export default router; 

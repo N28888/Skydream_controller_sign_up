@@ -36,7 +36,7 @@ app.get('/health', (req, res) => {
 // API路由
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
-app.use('/api', positionRoutes);
+app.use('/api/positions', positionRoutes);
 
 // 启动服务器
 app.listen(PORT, () => {

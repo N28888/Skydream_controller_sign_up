@@ -42,6 +42,7 @@ const Events: React.FC = () => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [form] = Form.useForm();
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   // 获取当前用户信息
   const fetchCurrentUser = async () => {
@@ -79,41 +80,50 @@ const Events: React.FC = () => {
 
   // 处理表单提交
   const handleSubmit = async (values: any) => {
+    setSubmitLoading(true);
     try {
-      console.log('活动表单提交数据:', values);
-      
       const eventData: EventForm = {
         ...values,
         event_date: values.event_date.format('YYYY-MM-DD'),
         event_time: values.event_time.format('HH:mm:ss'),
       };
-
-      console.log('处理后的活动数据:', eventData);
-
+      console.log('准备更新/创建的活动数据:', eventData);
       if (editingEvent) {
-        console.log('更新活动:', editingEvent.id);
+        console.log('开始调用API更新活动:', editingEvent.id);
         const response = await eventAPI.updateEvent(editingEvent.id, eventData);
-        console.log('更新活动响应:', response);
-        message.success('活动更新成功');
+        console.log('API响应:', response);
+        if (response.data.success) {
+          message.success('活动更新成功');
+        } else {
+          message.error(response.data.message || '更新失败');
+          return;
+        }
       } else {
-        console.log('创建新活动');
+        console.log('开始调用API创建活动');
         const response = await eventAPI.createEvent(eventData);
-        console.log('创建活动响应:', response);
-        message.success('活动创建成功');
+        console.log('API响应:', response);
+        if (response.data.success) {
+          message.success('活动创建成功');
+        } else {
+          message.error(response.data.message || '创建失败');
+          return;
+        }
       }
-
       setModalVisible(false);
       setEditingEvent(null);
       form.resetFields();
       fetchEvents();
     } catch (error: any) {
-      console.error('活动操作失败:', error);
+      console.error('活动操作时发生错误:', error);
       console.error('错误详情:', {
         message: error.message,
         status: error.response?.status,
-        data: error.response?.data
+        data: error.response?.data,
+        config: error.config
       });
       message.error(error.response?.data?.message || (editingEvent ? '更新活动失败' : '创建活动失败'));
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -383,7 +393,7 @@ const Events: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="Recommand AIRAC"
+                name="recommand_airac"
                 label="推荐使用AIRAC周期"
                 rules={[{ required: true, message: '请输入推荐使用的AIRAC周期' }]}
               >
@@ -415,7 +425,7 @@ const Events: React.FC = () => {
 
           <Form.Item>
             <Space>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" loading={submitLoading}>
                 {editingEvent ? '更新' : '创建'}
               </Button>
               <Button

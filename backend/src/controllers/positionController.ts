@@ -190,15 +190,7 @@ export class PositionController {
         });
       }
 
-      // 如果是学生等级，需要指定监督员
-      if (['S1', 'S2', 'S3'].includes(userLevel) && !student_supervised) {
-        return res.status(400).json({ 
-          success: false, 
-          message: '学生等级需要指定监督员' 
-        });
-      }
-
-      // 如果是监督员，验证监督员是否存在
+      // 如果是学生等级且指定了监督员，验证监督员是否存在
       if (student_supervised) {
         const supervisor = await UserModel.findByUsername(student_supervised);
         if (!supervisor || !['I1', 'I2', 'I3', 'SUP', 'ADM'].includes(supervisor.level)) {
