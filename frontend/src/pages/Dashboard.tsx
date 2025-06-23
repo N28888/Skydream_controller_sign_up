@@ -99,17 +99,17 @@ const Dashboard: React.FC = () => {
 
   const getLevelText = (level: string) => {
     const texts: { [key: string]: string } = {
-      'S1': '学员1级',
-      'S2': '学员2级',
-      'S3': '学员3级',
-      'C1': '管制员1级',
-      'C2': '管制员2级',
-      'C3': '管制员3级',
-      'I1': '教员1级',
-      'I2': '教员2级',
-      'I3': '教员3级',
-      'SUP': '监督员',
-      'ADM': '管理员',
+      'S1': 'S1',
+      'S2': 'S2',
+      'S3': 'S3',
+      'C1': 'C1',
+      'C2': 'C2',
+      'C3': 'C3',
+      'I1': 'I1',
+      'I2': 'I2',
+      'I3': 'I3',
+      'SUP': 'SUP',
+      'ADM': 'ADM',
     };
     return texts[level] || level;
   };

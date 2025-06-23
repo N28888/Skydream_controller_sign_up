@@ -377,17 +377,17 @@ const Users: React.FC = () => {
             rules={[{ required: true, message: '请选择管制员等级' }]}
           >
             <Select placeholder="请选择管制员等级">
-              <Option value="S1">学生1级 (S1)</Option>
-              <Option value="S2">学生2级 (S2)</Option>
-              <Option value="S3">学生3级 (S3)</Option>
-              <Option value="C1">管制员1级 (C1)</Option>
-              <Option value="C2">管制员2级 (C2)</Option>
-              <Option value="C3">管制员3级 (C3)</Option>
-              <Option value="I1">教员1级 (I1)</Option>
-              <Option value="I2">教员2级 (I2)</Option>
-              <Option value="I3">教员3级 (I3)</Option>
-              <Option value="SUP">监督员 (SUP)</Option>
-              <Option value="ADM">管理员 (ADM)</Option>
+              <Option value="S1">S1</Option>
+              <Option value="S2">S2</Option>
+              <Option value="S3">S3</Option>
+              <Option value="C1">C1</Option>
+              <Option value="C2">C2</Option>
+              <Option value="C3">C3</Option>
+              <Option value="I1">I1</Option>
+              <Option value="I2">I2</Option>
+              <Option value="I3">I3</Option>
+              <Option value="SUP">SUP</Option>
+              <Option value="ADM">ADM</Option>
             </Select>
           </Form.Item>
 
