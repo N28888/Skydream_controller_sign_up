@@ -262,7 +262,7 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
         <Col span={12}>
-          <Card title="我的报名" extra={<a href="/my-signups">查看全部</a>}>
+          <Card title="我的报名" extra={<a href="/positions">查看全部</a>}>
             <List
               dataSource={mySignups}
               loading={loading}
