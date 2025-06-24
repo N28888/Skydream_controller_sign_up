@@ -265,6 +265,11 @@ const EventDetail: React.FC = () => {
                   {dayjs(event.event_time, 'HH:mm:ss').format('HH:mm')}
                 </Space>
               </Descriptions.Item>
+              {event.remarks && (
+                <Descriptions.Item label="活动备注" span={2}>
+                  <Text>{event.remarks}</Text>
+                </Descriptions.Item>
+              )}
             </Descriptions>
             
             {/* 管理员操作按钮 */}

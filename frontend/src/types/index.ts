@@ -23,6 +23,7 @@ export interface RegisterForm {
 // 活动相关类型
 export interface Event {
   id: number;
+  custom_id?: string;
   title: string;
   departure_airport: string;
   arrival_airport: string;
@@ -31,6 +32,7 @@ export interface Event {
   airac: string;
   event_date: string;
   event_time: string;
+  remarks?: string;
   created_by: number;
   created_at: string;
   updated_at: string;
@@ -45,6 +47,7 @@ export interface EventForm {
   airac: string;
   event_date: string;
   event_time: string;
+  remarks?: string;
 }
 
 // 席位相关类型

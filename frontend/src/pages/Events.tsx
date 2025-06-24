@@ -64,7 +64,23 @@ const Events: React.FC = () => {
     setLoading(true);
     try {
       const response = await eventAPI.getEvents();
-      setEvents(response.data.data || []);
+      const allEvents = response.data.data || [];
+      
+      // 按活动日期距离当前日期的远近排序
+      const sortedEvents = allEvents.sort((a: Event, b: Event) => {
+        const dateA = dayjs(a.event_date);
+        const dateB = dayjs(b.event_date);
+        const now = dayjs();
+        
+        // 计算距离当前日期的天数差
+        const diffA = Math.abs(dateA.diff(now, 'day'));
+        const diffB = Math.abs(dateB.diff(now, 'day'));
+        
+        // 按距离排序，距离最近的排在前面
+        return diffA - diffB;
+      });
+      
+      setEvents(sortedEvents);
     } catch (error) {
       message.error('获取活动列表失败');
       console.error('获取活动列表失败:', error);
@@ -160,6 +176,17 @@ const Events: React.FC = () => {
   // 表格列定义
   const columns = [
     {
+      title: '活动ID',
+      dataIndex: 'custom_id',
+      key: 'custom_id',
+      width: 120,
+      render: (customId: string, record: Event) => (
+        <Tag color="blue" style={{ fontFamily: 'monospace' }}>
+          {customId || `ID:${record.id}`}
+        </Tag>
+      ),
+    },
+    {
       title: '活动标题',
       dataIndex: 'title',
       key: 'title',
@@ -188,7 +215,7 @@ const Events: React.FC = () => {
       render: (text: string) => <Tag color="orange">{text}</Tag>,
     },
     {
-      title: 'AIRAC周期',
+      title: 'AIRAC周期(或以后)',
       dataIndex: 'airac',
       key: 'airac',
       render: (text: string) => <Tag color="purple">{text}</Tag>,
@@ -386,8 +413,8 @@ const Events: React.FC = () => {
                 rules={[{ required: true, message: '请选择飞行高度' }]}
               >
                 <Select placeholder="选择飞行高度">
-                  <Option value="向西飞行, 请使用双数高度层">向西飞行, 请使用双数高度层</Option>
-                  <Option value="向东飞行, 请使用单数高度层">向东飞行, 请使用单数高度层</Option>
+                  <Option value="双数高度层">双数高度层</Option>
+                  <Option value="单数高度层">单数高度层</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -422,6 +449,18 @@ const Events: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+
+          <Form.Item
+            name="remarks"
+            label="活动备注"
+          >
+            <Input.TextArea 
+              placeholder="请输入活动备注信息（可选）" 
+              rows={3}
+              showCount
+              maxLength={500}
+            />
+          </Form.Item>
 
           <Form.Item>
             <Space>

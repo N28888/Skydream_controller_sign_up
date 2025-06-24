@@ -60,7 +60,20 @@ const Dashboard: React.FC = () => {
       });
 
       // 获取最近5个活动
-      setRecentEvents(allEvents.slice(0, 5));
+      const sortedEvents = allEvents.sort((a: Event, b: Event) => {
+        const dateA = dayjs(a.event_date);
+        const dateB = dayjs(b.event_date);
+        const now = dayjs();
+        
+        // 计算距离当前日期的天数差
+        const diffA = Math.abs(dateA.diff(now, 'day'));
+        const diffB = Math.abs(dateB.diff(now, 'day'));
+        
+        // 按距离排序，距离最近的排在前面
+        return diffA - diffB;
+      });
+      
+      setRecentEvents(sortedEvents.slice(0, 5));
       setMySignups(mySignupsData.slice(0, 5));
     } catch (error) {
       message.error('获取统计数据失败');
@@ -219,6 +232,18 @@ const Dashboard: React.FC = () => {
                         </Text>
                         <br />
                         <Text type="secondary">AIRAC: {event.airac}</Text>
+                        <br />
+                        <Text type="secondary" style={{ fontFamily: 'monospace' }}>
+                          ID: {event.custom_id || event.id}
+                        </Text>
+                        {event.remarks && (
+                          <>
+                            <br />
+                            <Text type="secondary" style={{ fontStyle: 'italic' }}>
+                              备注: {event.remarks}
+                            </Text>
+                          </>
+                        )}
                       </div>
                     }
                   />

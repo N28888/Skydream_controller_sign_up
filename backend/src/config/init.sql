@@ -16,14 +16,16 @@ CREATE TABLE IF NOT EXISTS users (
 -- 活动表
 CREATE TABLE IF NOT EXISTS events (
   id INT PRIMARY KEY AUTO_INCREMENT,
+  custom_id VARCHAR(20) UNIQUE,
   title VARCHAR(200) NOT NULL,
-  departure_airport VARCHAR(10) NOT NULL,
-  arrival_airport VARCHAR(10) NOT NULL,
+  departure_airport VARCHAR(20) NOT NULL,
+  arrival_airport VARCHAR(20) NOT NULL,
   route TEXT,
   flight_level VARCHAR(50),
   airac VARCHAR(20),
   event_date DATE NOT NULL,
   event_time TIME NOT NULL,
+  remarks TEXT,
   created_by INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
