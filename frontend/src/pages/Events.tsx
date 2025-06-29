@@ -176,17 +176,6 @@ const Events: React.FC = () => {
   // 表格列定义
   const columns = [
     {
-      title: '活动ID',
-      dataIndex: 'custom_id',
-      key: 'custom_id',
-      width: 120,
-      render: (customId: string, record: Event) => (
-        <Tag color="blue" style={{ fontFamily: 'monospace' }}>
-          {customId || `ID:${record.id}`}
-        </Tag>
-      ),
-    },
-    {
       title: '活动标题',
       dataIndex: 'title',
       key: 'title',

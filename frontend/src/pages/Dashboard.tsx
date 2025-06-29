@@ -280,7 +280,9 @@ const Dashboard: React.FC = () => {
                     }
                     description={
                       <div>
-                        <Text type="secondary">活动ID: {position.event_id}</Text>
+                        <Text type="secondary">
+                          {position.event_date ? dayjs(position.event_date).format('YYYY-MM-DD') : '未知日期'} {position.event_time ? dayjs(position.event_time, 'HH:mm:ss').format('HH:mm') : ''}
+                        </Text>
                         {position.student_supervised && (
                           <div>
                             <Text type="secondary">监督员: {position.student_supervised}</Text>

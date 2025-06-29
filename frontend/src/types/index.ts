@@ -63,6 +63,12 @@ export interface Position {
   student_supervised?: string;
   created_at: string;
   updated_at: string;
+  // 活动信息
+  event_title?: string;
+  event_date?: string;
+  event_time?: string;
+  departure_airport?: string;
+  arrival_airport?: string;
 }
 
 export interface PositionForm {
