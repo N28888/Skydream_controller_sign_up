@@ -42,7 +42,13 @@ const Users: React.FC = () => {
     setLoading(true);
     try {
       const response = await userAPI.getAllUsers();
-      setUsers(response.data.data);
+      // 按呼号数字大小排序
+      const sortedUsers = response.data.data.sort((a: User, b: User) => {
+        const numA = parseInt(a.username, 10);
+        const numB = parseInt(b.username, 10);
+        return numA - numB;
+      });
+      setUsers(sortedUsers);
     } catch (error: any) {
       console.error('获取用户列表失败:', error);
       console.error('错误详情:', {

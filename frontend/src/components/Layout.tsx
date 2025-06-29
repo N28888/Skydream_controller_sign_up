@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Button, Avatar, Dropdown, message, Modal, Spin } from 'antd';
+import { Layout, Menu, Button, Avatar, Dropdown, message, Modal, Spin, Switch } from 'antd';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -10,9 +10,11 @@ import {
   DashboardOutlined,
   SettingOutlined,
   LockOutlined,
+  BulbOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { User } from '../types';
+import { useTheme } from '../contexts/ThemeContext';
 
 const { Header, Sider, Content } = Layout;
 
@@ -20,6 +22,7 @@ const MainLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -131,15 +134,44 @@ const MainLayout: React.FC = () => {
           items={menuItems}
           onClick={({ key }) => navigate(key)}
         />
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: '16px',
+          borderTop: '1px solid #303030',
+          display: 'flex',
+          justifyContent: 'center',
+          background: '#001529'
+        }}>
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              color: 'white',
+              border: 'none',
+              fontSize: '16px',
+              width: collapsed ? '32px' : 'auto',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            title={collapsed ? '展开侧边栏' : '收缩侧边栏'}
+          />
+        </div>
       </Sider>
       <Layout>
         <Header style={{ 
           padding: '0 24px', 
-          background: '#fff',
+          background: isDarkMode ? '#1f1f1f' : '#fff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          borderBottom: isDarkMode ? '1px solid #303030' : 'none'
         }}>
           <Button
             type="text"
@@ -149,9 +181,16 @@ const MainLayout: React.FC = () => {
           />
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ color: '#666' }}>
+            <span style={{ color: isDarkMode ? '#ffffff' : '#666' }}>
               欢迎，{user?.username} ({user?.level})
             </span>
+            <Switch
+              checked={isDarkMode}
+              onChange={toggleTheme}
+              checkedChildren={<BulbOutlined />}
+              unCheckedChildren={<BulbOutlined />}
+              style={{ marginRight: 8 }}
+            />
             <Dropdown menu={{ items: userMenu }} placement="bottomRight">
               <Avatar 
                 icon={<UserOutlined />} 
@@ -163,7 +202,7 @@ const MainLayout: React.FC = () => {
         <Content style={{ 
           margin: '24px', 
           padding: '24px', 
-          background: '#fff',
+          background: isDarkMode ? '#1f1f1f' : '#fff',
           borderRadius: '8px',
           minHeight: 280
         }}>
