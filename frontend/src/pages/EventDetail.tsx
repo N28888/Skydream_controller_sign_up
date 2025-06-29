@@ -38,6 +38,7 @@ import {
 import { eventAPI, positionAPI, userAPI } from '../services/api';
 import { Event, Position, SignupForm, User } from '../types';
 import dayjs from 'dayjs';
+import { useMediaQuery } from 'react-responsive';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -50,6 +51,7 @@ const EventDetail: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [signupLoading, setSignupLoading] = useState<number | null>(null);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   // 获取活动详情
   const fetchEventDetail = async () => {
@@ -200,7 +202,7 @@ const EventDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
+      <div style={{ textAlign: 'center', padding: isMobile ? '30px' : '50px' }}>
         <Spin size="large" />
       </div>
     );
@@ -208,30 +210,35 @@ const EventDetail: React.FC = () => {
 
   if (!event) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
+      <div style={{ textAlign: 'center', padding: isMobile ? '30px' : '50px' }}>
         <Empty description="活动不存在" />
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: isMobile ? '16px' : '24px' }}>
       {/* 返回按钮 */}
       <Button
         icon={<ArrowLeftOutlined />}
         onClick={() => navigate('/events')}
         style={{ marginBottom: 16 }}
+        size={isMobile ? 'large' : 'middle'}
       >
         返回活动列表
       </Button>
 
-      <Title level={2}>{event.title}</Title>
+      <Title level={isMobile ? 4 : 2}>{event.title}</Title>
 
-      <Row gutter={24}>
+      <Row gutter={isMobile ? 16 : 24}>
         {/* 活动详情 */}
-        <Col span={16}>
-          <Card title="活动详情" style={{ marginBottom: 24 }}>
-            <Descriptions column={2} bordered>
+        <Col span={isMobile ? 24 : 16}>
+          <Card title="活动详情" style={{ marginBottom: 24 }} size={isMobile ? 'small' : 'default'}>
+            <Descriptions 
+              column={isMobile ? 1 : 2} 
+              bordered 
+              size={isMobile ? 'small' : 'default'}
+            >
               <Descriptions.Item label="出发机场">
                 <Tag color="blue" icon={<EnvironmentOutlined />}>
                   {event.departure_airport}
@@ -242,7 +249,7 @@ const EventDetail: React.FC = () => {
                   {event.arrival_airport}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="航线" span={2}>
+              <Descriptions.Item label="航线" span={isMobile ? 1 : 2}>
                 <Text code>{event.route}</Text>
               </Descriptions.Item>
               <Descriptions.Item label="飞行高度">
@@ -266,7 +273,7 @@ const EventDetail: React.FC = () => {
                 </Space>
               </Descriptions.Item>
               {event.remarks && (
-                <Descriptions.Item label="活动备注" span={2}>
+                <Descriptions.Item label="活动备注" span={isMobile ? 1 : 2}>
                   <Text>{event.remarks}</Text>
                 </Descriptions.Item>
               )}
@@ -274,11 +281,13 @@ const EventDetail: React.FC = () => {
             
             {/* 管理员操作按钮 */}
             {currentUser && ['SUP', 'ADM'].includes(currentUser.level) && (
-              <div style={{ marginTop: 16, textAlign: 'right' }}>
+              <div style={{ marginTop: 16, textAlign: isMobile ? 'center' : 'right' }}>
                 <Button
                   type="primary"
                   icon={<EditOutlined />}
                   onClick={() => navigate(`/events/${event.id}/positions`)}
+                  size={isMobile ? 'large' : 'middle'}
+                  style={isMobile ? { width: '100%' } : {}}
                 >
                   管理席位
                 </Button>
@@ -287,74 +296,149 @@ const EventDetail: React.FC = () => {
           </Card>
 
           {/* 席位列表 */}
-          <Card title="席位信息">
+          <Card title="席位信息" size={isMobile ? 'small' : 'default'}>
             {positions.length > 0 ? (
-              <List
-                dataSource={positions}
-                renderItem={(position) => (
-                  <List.Item
-                    actions={[
-                      isMySignup(position) ? (
-                        <Popconfirm
-                          title="确定要取消报名吗？"
-                          onConfirm={() => handleCancelSignup(position)}
-                          okText="确定"
-                          cancelText="取消"
-                        >
-                          <Button type="default" size="small">
-                            取消报名
-                          </Button>
-                        </Popconfirm>
-                      ) : (
-                        <Button
-                          type={position.is_taken ? 'default' : 'primary'}
-                          disabled={position.is_taken || !canSignupPosition(position.position_type) || signupLoading === position.id}
-                          size="small"
-                          loading={signupLoading === position.id}
-                          onClick={() => handleSignup(position)}
-                        >
-                          {position.is_taken ? '已报名' : '报名'}
-                        </Button>
-                      )
-                    ]}
-                  >
-                    <List.Item.Meta
-                      avatar={
-                        <Avatar
-                          style={{
-                            backgroundColor: getPositionTypeColor(position.position_type),
-                          }}
-                        >
-                          {position.position_type}
-                        </Avatar>
-                      }
-                      title={
-                        <Space>
-                          <Text strong>{position.position_name}</Text>
-                          <Tag color={getPositionTypeColor(position.position_type)}>
-                            {getPositionTypeName(position.position_type)}
-                          </Tag>
-                          {position.is_taken && (
-                            <Tag color="red">已占用</Tag>
+              isMobile ? (
+                // 移动端卡片式展示
+                <div>
+                  {positions.map((position) => (
+                    <Card
+                      key={position.id}
+                      style={{ marginBottom: 12 }}
+                      size="small"
+                      bodyStyle={{ padding: 12 }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <Avatar
+                            size={isMobile ? 'small' : 'default'}
+                            style={{
+                              backgroundColor: getPositionTypeColor(position.position_type),
+                            }}
+                          >
+                            {position.position_type}
+                          </Avatar>
+                          <div>
+                            <div style={{ fontWeight: 'bold', fontSize: 14 }}>
+                              {position.position_name}
+                            </div>
+                            <div style={{ marginTop: 4 }}>
+                              <Tag color={getPositionTypeColor(position.position_type)}>
+                                {getPositionTypeName(position.position_type)}
+                              </Tag>
+                              {position.is_taken && (
+                                <Tag color="red">已占用</Tag>
+                              )}
+                              {!canSignupPosition(position.position_type) && (
+                                <Tag color="orange">权限不足</Tag>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          {isMySignup(position) ? (
+                            <Popconfirm
+                              title="确定要取消报名吗？"
+                              onConfirm={() => handleCancelSignup(position)}
+                              okText="确定"
+                              cancelText="取消"
+                            >
+                              <Button type="default" size="small">
+                                取消报名
+                              </Button>
+                            </Popconfirm>
+                          ) : (
+                            <Button
+                              type={position.is_taken ? 'default' : 'primary'}
+                              disabled={position.is_taken || !canSignupPosition(position.position_type) || signupLoading === position.id}
+                              size="small"
+                              loading={signupLoading === position.id}
+                              onClick={() => handleSignup(position)}
+                            >
+                              {position.is_taken ? '已报名' : '报名'}
+                            </Button>
                           )}
-                          {!canSignupPosition(position.position_type) && (
-                            <Tag color="orange">权限不足</Tag>
-                          )}
-                        </Space>
-                      }
-                      description={
-                        position.is_taken ? (
-                          <Text type="secondary">
-                            报名人: {position.taken_by_username} ({position.taken_by_level})
-                          </Text>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 12, color: '#666' }}>
+                        {position.is_taken ? (
+                          <span>报名人: {position.taken_by_username} ({position.taken_by_level})</span>
                         ) : (
-                          <Text type="success">可报名</Text>
+                          <span style={{ color: '#52c41a' }}>可报名</span>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                // 桌面端列表展示
+                <List
+                  dataSource={positions}
+                  renderItem={(position) => (
+                    <List.Item
+                      actions={[
+                        isMySignup(position) ? (
+                          <Popconfirm
+                            title="确定要取消报名吗？"
+                            onConfirm={() => handleCancelSignup(position)}
+                            okText="确定"
+                            cancelText="取消"
+                          >
+                            <Button type="default" size="small">
+                              取消报名
+                            </Button>
+                          </Popconfirm>
+                        ) : (
+                          <Button
+                            type={position.is_taken ? 'default' : 'primary'}
+                            disabled={position.is_taken || !canSignupPosition(position.position_type) || signupLoading === position.id}
+                            size="small"
+                            loading={signupLoading === position.id}
+                            onClick={() => handleSignup(position)}
+                          >
+                            {position.is_taken ? '已报名' : '报名'}
+                          </Button>
                         )
-                      }
-                    />
-                  </List.Item>
-                )}
-              />
+                      ]}
+                    >
+                      <List.Item.Meta
+                        avatar={
+                          <Avatar
+                            style={{
+                              backgroundColor: getPositionTypeColor(position.position_type),
+                            }}
+                          >
+                            {position.position_type}
+                          </Avatar>
+                        }
+                        title={
+                          <Space>
+                            <Text strong>{position.position_name}</Text>
+                            <Tag color={getPositionTypeColor(position.position_type)}>
+                              {getPositionTypeName(position.position_type)}
+                            </Tag>
+                            {position.is_taken && (
+                              <Tag color="red">已占用</Tag>
+                            )}
+                            {!canSignupPosition(position.position_type) && (
+                              <Tag color="orange">权限不足</Tag>
+                            )}
+                          </Space>
+                        }
+                        description={
+                          position.is_taken ? (
+                            <Text type="secondary">
+                              报名人: {position.taken_by_username} ({position.taken_by_level})
+                            </Text>
+                          ) : (
+                            <Text type="success">可报名</Text>
+                          )
+                        }
+                      />
+                    </List.Item>
+                  )}
+                />
+              )
             ) : (
               <Empty description="暂无席位信息" />
             )}
@@ -362,31 +446,43 @@ const EventDetail: React.FC = () => {
         </Col>
 
         {/* 侧边栏信息 */}
-        <Col span={8}>
-          <Card title="活动统计" style={{ marginBottom: 16 }}>
-            <Row gutter={16}>
+        <Col span={isMobile ? 24 : 8}>
+          <Card title="活动统计" style={{ marginBottom: 16 }} size={isMobile ? 'small' : 'default'}>
+            <Row gutter={isMobile ? 8 : 16}>
               <Col span={8}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1890ff' }}>
+                  <div style={{ 
+                    fontSize: isMobile ? '20px' : '24px', 
+                    fontWeight: 'bold', 
+                    color: '#1890ff' 
+                  }}>
                     {positions.length}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>总席位</div>
+                  <div style={{ fontSize: isMobile ? '11px' : '12px', color: '#666' }}>总席位</div>
                 </div>
               </Col>
               <Col span={8}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#52c41a' }}>
+                  <div style={{ 
+                    fontSize: isMobile ? '20px' : '24px', 
+                    fontWeight: 'bold', 
+                    color: '#52c41a' 
+                  }}>
                     {positions.filter(p => !p.is_taken).length}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>可报名</div>
+                  <div style={{ fontSize: isMobile ? '11px' : '12px', color: '#666' }}>可报名</div>
                 </div>
               </Col>
               <Col span={8}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#faad14' }}>
+                  <div style={{ 
+                    fontSize: isMobile ? '20px' : '24px', 
+                    fontWeight: 'bold', 
+                    color: '#faad14' 
+                  }}>
                     {positions.filter(p => p.is_taken).length}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>已报名</div>
+                  <div style={{ fontSize: isMobile ? '11px' : '12px', color: '#666' }}>已报名</div>
                 </div>
               </Col>
             </Row>

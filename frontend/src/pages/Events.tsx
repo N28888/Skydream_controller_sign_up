@@ -30,6 +30,7 @@ import {
 import { eventAPI, userAPI } from '../services/api';
 import { Event, EventForm, ApiResponse, User } from '../types';
 import dayjs from 'dayjs';
+import { useMediaQuery } from 'react-responsive';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -43,6 +44,7 @@ const Events: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [form] = Form.useForm();
   const [submitLoading, setSubmitLoading] = useState(false);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   // 获取当前用户信息
   const fetchCurrentUser = async () => {
@@ -274,58 +276,79 @@ const Events: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <Title level={2}>活动管理</Title>
-      
-      {/* 统计卡片 */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={12}>
-          <Card>
-            <Statistic
-              title="即将举行的活动"
-              value={upcomingEvents}
-              prefix={<ClockCircleOutlined />}
-              valueStyle={{ color: '#3f8600' }}
-            />
-          </Card>
-        </Col>
-        <Col span={12}>
-          <Card>
-            <Statistic
-              title="今日活动"
-              value={todayEvents}
-              prefix={<CalendarOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      {/* 操作按钮 */}
-      <div style={{ marginBottom: 16 }}>
-        {hasManagePermission() && (
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={showCreateModal}
-        >
-          创建活动
-        </Button>
-        )}
-      </div>
-
-      {/* 活动列表表格 */}
-      <Table
-        columns={columns}
-        dataSource={events}
-        rowKey="id"
-        loading={loading}
-        pagination={{
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (total, range) =>
-            `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
-        }}
-      />
+      <Card style={{ marginBottom: 16 }}>
+        <Row gutter={[16, 16]} align="middle">
+          <Col flex="auto">
+            <Title level={3} style={{ margin: 0 }}>
+              <CalendarOutlined /> 活动管理
+            </Title>
+          </Col>
+          <Col>
+            {hasManagePermission() && (
+              <Button type="primary" icon={<PlusOutlined />} onClick={showCreateModal}>
+                新建活动
+              </Button>
+            )}
+          </Col>
+        </Row>
+      </Card>
+      {/* 移动端卡片列表 */}
+      {isMobile ? (
+        <div>
+          {events.map(event => (
+            <Card
+              key={event.id}
+              style={{ marginBottom: 12 }}
+              size="small"
+              title={<span><strong>{event.title}</strong></span>}
+              extra={
+                <Button size="small" icon={<EyeOutlined />} onClick={() => navigate(`/events/${event.id}`)}>
+                  详情
+                </Button>
+              }
+            >
+              <div style={{ marginBottom: 8 }}>
+                <Tag color="blue">{event.departure_airport}</Tag>
+                <span>→</span>
+                <Tag color="green">{event.arrival_airport}</Tag>
+              </div>
+              <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>
+                航路: {event.route}
+              </div>
+              <div style={{ fontSize: 13, marginBottom: 8 }}>
+                <CalendarOutlined /> {event.event_date} <ClockCircleOutlined style={{ marginLeft: 8 }} /> {event.event_time}
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {hasManagePermission() && (
+                  <>
+                    <Button size="small" icon={<EditOutlined />} onClick={() => showEditModal(event)}>
+                      编辑
+                    </Button>
+                    <Popconfirm title="确定要删除该活动吗？" onConfirm={() => handleDelete(event.id)} okText="确定" cancelText="取消">
+                      <Button size="small" icon={<DeleteOutlined />} danger>
+                        删除
+                      </Button>
+                    </Popconfirm>
+                  </>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={events}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `共 ${total} 个活动`,
+            pageSize: 10,
+          }}
+        />
+      )}
 
       {/* 创建/编辑活动模态框 */}
       <Modal
