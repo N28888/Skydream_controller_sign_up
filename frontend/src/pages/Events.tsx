@@ -64,7 +64,23 @@ const Events: React.FC = () => {
     setLoading(true);
     try {
       const response = await eventAPI.getEvents();
-      setEvents(response.data.data || []);
+      const allEvents = response.data.data || [];
+      
+      // 按活动日期距离当前日期的远近排序
+      const sortedEvents = allEvents.sort((a: Event, b: Event) => {
+        const dateA = dayjs(a.event_date);
+        const dateB = dayjs(b.event_date);
+        const now = dayjs();
+        
+        // 计算距离当前日期的天数差
+        const diffA = Math.abs(dateA.diff(now, 'day'));
+        const diffB = Math.abs(dateB.diff(now, 'day'));
+        
+        // 按距离排序，距离最近的排在前面
+        return diffA - diffB;
+      });
+      
+      setEvents(sortedEvents);
     } catch (error) {
       message.error('获取活动列表失败');
       console.error('获取活动列表失败:', error);
@@ -93,7 +109,7 @@ const Events: React.FC = () => {
         const response = await eventAPI.updateEvent(editingEvent.id, eventData);
         console.log('API响应:', response);
         if (response.data.success) {
-          message.success('活动更新成功');
+        message.success('活动更新成功');
         } else {
           message.error(response.data.message || '更新失败');
           return;
@@ -103,7 +119,7 @@ const Events: React.FC = () => {
         const response = await eventAPI.createEvent(eventData);
         console.log('API响应:', response);
         if (response.data.success) {
-          message.success('活动创建成功');
+        message.success('活动创建成功');
         } else {
           message.error(response.data.message || '创建失败');
           return;
@@ -176,7 +192,7 @@ const Events: React.FC = () => {
             <Tag color="green">{record.arrival_airport}</Tag>
           </div>
           <div style={{ fontSize: '12px', color: '#666' }}>
-            航线: {record.route}
+            航路: {record.route}
           </div>
         </Space>
       ),
@@ -188,13 +204,13 @@ const Events: React.FC = () => {
       render: (text: string) => <Tag color="orange">{text}</Tag>,
     },
     {
-      title: 'AIRAC周期',
+      title: 'AIRAC周期(或以后)',
       dataIndex: 'airac',
       key: 'airac',
       render: (text: string) => <Tag color="purple">{text}</Tag>,
     },
     {
-      title: '活动时间',
+      title: '活动时间(UTC+8)',
       key: 'datetime',
       render: (record: Event) => (
         <Space direction="vertical" size="small">
@@ -223,23 +239,23 @@ const Events: React.FC = () => {
           </Button>
           {hasManagePermission() && (
             <>
-              <Button
-                type="link"
-                icon={<EditOutlined />}
-                onClick={() => showEditModal(record)}
-              >
-                编辑
-              </Button>
-              <Popconfirm
-                title="确定要删除这个活动吗？"
-                onConfirm={() => handleDelete(record.id)}
-                okText="确定"
-                cancelText="取消"
-              >
-                <Button type="link" danger icon={<DeleteOutlined />}>
-                  删除
-                </Button>
-              </Popconfirm>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => showEditModal(record)}
+          >
+            编辑
+          </Button>
+          <Popconfirm
+            title="确定要删除这个活动吗？"
+            onConfirm={() => handleDelete(record.id)}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button type="link" danger icon={<DeleteOutlined />}>
+              删除
+            </Button>
+          </Popconfirm>
             </>
           )}
         </Space>
@@ -296,13 +312,13 @@ const Events: React.FC = () => {
       {/* 操作按钮 */}
       <div style={{ marginBottom: 16 }}>
         {hasManagePermission() && (
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={showCreateModal}
-          >
-            创建活动
-          </Button>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showCreateModal}
+        >
+          创建活动
+        </Button>
         )}
       </div>
 
@@ -337,8 +353,8 @@ const Events: React.FC = () => {
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{
-            flight_level: 'FL300',
-            airac: '2301',
+            flight_level: '请选择飞行方向',
+            airac: '2501',
           }}
         >
           <Form.Item
@@ -372,8 +388,8 @@ const Events: React.FC = () => {
 
           <Form.Item
             name="route"
-            label="航线"
-            rules={[{ required: true, message: '请输入航线' }]}
+            label="航路(请使用空格分隔)"
+            rules={[{ required: true, message: '请输入航路' }]}
           >
             <Input placeholder="如: A461 B330" />
           </Form.Item>
@@ -386,14 +402,14 @@ const Events: React.FC = () => {
                 rules={[{ required: true, message: '请选择飞行高度' }]}
               >
                 <Select placeholder="选择飞行高度">
-                  <Option value="向西飞行, 请使用双数高度层">向西飞行, 请使用双数高度层</Option>
-                  <Option value="向东飞行, 请使用单数高度层">向东飞行, 请使用单数高度层</Option>
+                  <Option value="双数高度层">双数高度层</Option>
+                  <Option value="单数高度层">单数高度层</Option>
                 </Select>
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                name="recommand_airac"
+                name="airac"
                 label="推荐使用AIRAC周期"
                 rules={[{ required: true, message: '请输入推荐使用的AIRAC周期' }]}
               >
@@ -422,6 +438,18 @@ const Events: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+
+          <Form.Item
+            name="remarks"
+            label="活动备注"
+          >
+            <Input.TextArea 
+              placeholder="请输入活动备注信息（可选）" 
+              rows={3}
+              showCount
+              maxLength={500}
+            />
+          </Form.Item>
 
           <Form.Item>
             <Space>

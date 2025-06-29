@@ -33,6 +33,7 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
+  ShareAltOutlined,
 } from '@ant-design/icons';
 import { eventAPI, positionAPI, userAPI } from '../services/api';
 import { Event, Position, SignupForm, User } from '../types';
@@ -185,6 +186,18 @@ const EventDetail: React.FC = () => {
     return currentUser && position.taken_by === currentUser.id;
   };
 
+  // 处理分享活动
+  const handleShareEvent = async () => {
+    try {
+      const currentUrl = window.location.href;
+      await navigator.clipboard.writeText(currentUrl);
+      message.success('活动链接已复制到剪贴板！');
+    } catch (error) {
+      console.error('复制链接失败:', error);
+      message.error('复制链接失败，请手动复制');
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '50px' }}>
@@ -246,12 +259,17 @@ const EventDetail: React.FC = () => {
                   {dayjs(event.event_date).format('YYYY年MM月DD日')}
                 </Space>
               </Descriptions.Item>
-              <Descriptions.Item label="活动时间">
+              <Descriptions.Item label="活动时间(UTC+8)">
                 <Space>
                   <ClockCircleOutlined />
                   {dayjs(event.event_time, 'HH:mm:ss').format('HH:mm')}
                 </Space>
               </Descriptions.Item>
+              {event.remarks && (
+                <Descriptions.Item label="活动备注" span={2}>
+                  <Text>{event.remarks}</Text>
+                </Descriptions.Item>
+              )}
             </Descriptions>
             
             {/* 管理员操作按钮 */}
@@ -347,7 +365,7 @@ const EventDetail: React.FC = () => {
         <Col span={8}>
           <Card title="活动统计" style={{ marginBottom: 16 }}>
             <Row gutter={16}>
-              <Col span={12}>
+              <Col span={8}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1890ff' }}>
                     {positions.length}
@@ -355,7 +373,7 @@ const EventDetail: React.FC = () => {
                   <div style={{ fontSize: '12px', color: '#666' }}>总席位</div>
                 </div>
               </Col>
-              <Col span={12}>
+              <Col span={8}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#52c41a' }}>
                     {positions.filter(p => !p.is_taken).length}
@@ -363,10 +381,7 @@ const EventDetail: React.FC = () => {
                   <div style={{ fontSize: '12px', color: '#666' }}>可报名</div>
                 </div>
               </Col>
-            </Row>
-            <Divider />
-            <Row gutter={16}>
-              <Col span={12}>
+              <Col span={8}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#faad14' }}>
                     {positions.filter(p => p.is_taken).length}
@@ -374,29 +389,7 @@ const EventDetail: React.FC = () => {
                   <div style={{ fontSize: '12px', color: '#666' }}>已报名</div>
                 </div>
               </Col>
-              <Col span={12}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#f5222d' }}>
-                    {positions.filter(p => p.student_supervised).length}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>需监督</div>
-                </div>
-              </Col>
             </Row>
-          </Card>
-
-          <Card title="快速操作">
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Button type="primary" block>
-                报名席位
-              </Button>
-              <Button block>
-                查看报名记录
-              </Button>
-              <Button block>
-                分享活动
-              </Button>
-            </Space>
           </Card>
         </Col>
       </Row>

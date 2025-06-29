@@ -15,8 +15,10 @@ router.post('/login', asyncHandler(UserController.login));
 
 // 需要认证的路由
 router.get('/profile', authenticateToken, asyncHandler(UserController.getProfile));
+router.post('/change-password', authenticateToken, asyncHandler(UserController.changePassword));
 
 // 需要管理员权限的路由
+router.post('/create', authenticateToken, requireAdmin, asyncHandler(UserController.createUser));
 router.get('/all', authenticateToken, requireAdmin, asyncHandler(UserController.getAllUsers));
 router.put('/:id', authenticateToken, requireAdmin, asyncHandler(UserController.updateUser));
 router.delete('/:id', authenticateToken, requireAdmin, asyncHandler(UserController.deleteUser));

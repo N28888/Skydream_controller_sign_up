@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, Button, Avatar, Dropdown, message } from 'antd';
+import { Layout, Menu, Button, Avatar, Dropdown, message, Modal, Spin } from 'antd';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -9,6 +9,7 @@ import {
   LogoutOutlined,
   DashboardOutlined,
   SettingOutlined,
+  LockOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { User } from '../types';
@@ -18,6 +19,7 @@ const { Header, Sider, Content } = Layout;
 const MainLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,26 +31,55 @@ const MainLayout: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    message.success('已退出登录');
-    navigate('/login');
+    console.log('handleLogout被调用');
+    
+    // 先测试简单的alert
+    if (window.confirm('确定要退出登录吗？')) {
+      console.log('用户确认退出');
+      setLogoutLoading(true);
+      setTimeout(() => {
+        console.log('开始清除本地存储');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        message.success('已退出登录');
+        navigate('/login');
+        setLogoutLoading(false);
+      }, 1000);
+    } else {
+      console.log('用户取消退出');
+    }
   };
 
-  const userMenu = (
-    <Menu>
-      <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => navigate('/profile')}>
-        个人资料
-      </Menu.Item>
-      <Menu.Item key="settings" icon={<SettingOutlined />} onClick={() => navigate('/settings')}>
-        设置
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
-        退出登录
-      </Menu.Item>
-    </Menu>
-  );
+  const userMenu = [
+    {
+      key: 'profile',
+      icon: <UserOutlined />,
+      label: '个人资料',
+      onClick: () => navigate('/profile'),
+    },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: '设置',
+      onClick: () => navigate('/settings'),
+    },
+    {
+      key: 'change-password',
+      icon: <UserOutlined />,
+      label: '更改密码',
+      onClick: () => navigate('/change-password'),
+    },
+    {
+      type: 'divider' as const,
+    },
+    {
+      key: 'logout',
+      icon: logoutLoading ? <Spin size="small" /> : <LogoutOutlined />,
+      label: logoutLoading ? '退出中...' : '退出登录',
+      onClick: handleLogout,
+      disabled: logoutLoading,
+    },
+  ];
 
   const menuItems = [
     {
@@ -65,6 +96,11 @@ const MainLayout: React.FC = () => {
       key: '/positions',
       icon: <TeamOutlined />,
       label: '我的报名',
+    },
+    {
+      key: '/change-password',
+      icon: <LockOutlined />,
+      label: '更改密码',
     },
     {
       key: '/users',
@@ -116,7 +152,7 @@ const MainLayout: React.FC = () => {
             <span style={{ color: '#666' }}>
               欢迎，{user?.username} ({user?.level})
             </span>
-            <Dropdown overlay={userMenu} placement="bottomRight">
+            <Dropdown menu={{ items: userMenu }} placement="bottomRight">
               <Avatar 
                 icon={<UserOutlined />} 
                 style={{ cursor: 'pointer' }}

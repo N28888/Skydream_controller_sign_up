@@ -223,6 +223,154 @@ export class UserController {
     }
   }
 
+  // 创建用户（管理员权限）
+  static async createUser(req: Request, res: Response) {
+    try {
+      const userLevel = (req as any).user?.level;
+      if (!userLevel || !['SUP', 'ADM'].includes(userLevel)) {
+        return res.status(403).json({
+          success: false,
+          message: '权限不足'
+        });
+      }
+
+      const { username, password, email, level } = req.body;
+
+      // 验证必填字段
+      if (!username || !password || !email || !level) {
+        return res.status(400).json({
+          success: false,
+          message: '呼号、密码、邮箱和等级都是必填项'
+        });
+      }
+
+      // 验证等级是否有效
+      const validLevels = ['S1', 'S2', 'S3', 'C1', 'C2', 'C3', 'I1', 'I2', 'I3', 'SUP', 'ADM'];
+      if (!validLevels.includes(level)) {
+        return res.status(400).json({
+          success: false,
+          message: '无效的管制员等级'
+        });
+      }
+
+      // 检查用户是否已存在
+      const existingUser = await UserModel.findByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: '呼号已存在'
+        });
+      }
+
+      // 加密密码
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // 创建新用户
+      const userId = await UserModel.create({
+        username,
+        password: hashedPassword,
+        email,
+        level,
+      });
+
+      // 获取创建的用户信息（不包含密码）
+      const user = await UserModel.findById(userId);
+
+      res.status(201).json({
+        success: true,
+        message: '用户创建成功',
+        data: user
+      });
+    } catch (error) {
+      console.error('创建用户错误:', error);
+      res.status(500).json({
+        success: false,
+        message: '服务器内部错误'
+      });
+    }
+  }
+
+  // 更改密码
+  static async changePassword(req: Request, res: Response) {
+    try {
+      const userId = (req as any).user?.userId;
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          message: '未授权访问'
+        });
+      }
+
+      const { currentPassword, newPassword } = req.body;
+
+      // 验证必填字段
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({
+          success: false,
+          message: '当前密码和新密码都是必填项'
+        });
+      }
+
+      // 验证新密码长度
+      if (newPassword.length < 6) {
+        return res.status(400).json({
+          success: false,
+          message: '新密码长度至少6个字符'
+        });
+      }
+
+      // 获取用户信息
+      const user = await UserModel.findByUsername((req as any).user?.username);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: '用户不存在'
+        });
+      }
+
+      // 验证当前密码
+      const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+      if (!isValidPassword) {
+        return res.status(400).json({
+          success: false,
+          message: '当前密码错误'
+        });
+      }
+
+      // 检查新密码是否与当前密码相同
+      const isSamePassword = await bcrypt.compare(newPassword, user.password);
+      if (isSamePassword) {
+        return res.status(400).json({
+          success: false,
+          message: '新密码不能与当前密码相同'
+        });
+      }
+
+      // 加密新密码
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+      // 更新密码
+      const success = await UserModel.update(userId, { password: hashedNewPassword });
+      if (!success) {
+        return res.status(500).json({
+          success: false,
+          message: '密码更新失败'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: '密码更改成功'
+      });
+    } catch (error) {
+      console.error('更改密码错误:', error);
+      res.status(500).json({
+        success: false,
+        message: '服务器内部错误'
+      });
+    }
+  }
+
   // 删除用户（管理员权限）
   static async deleteUser(req: Request, res: Response) {
     try {

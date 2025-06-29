@@ -14,12 +14,21 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+    console.log('API请求拦截器:', {
+      url: config.url,
+      method: config.method,
+      hasToken: !!token,
+      headers: config.headers
+    });
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('已添加Authorization头:', `Bearer ${token.substring(0, 20)}...`);
     }
     return config;
   },
   (error) => {
+    console.error('请求拦截器错误:', error);
     return Promise.reject(error);
   }
 );
@@ -28,7 +37,17 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    console.log('API响应错误:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data,
+      headers: error.config?.headers
+    });
+    
+    // 只有在非登录页面时才自动跳转
+    if (error.response?.status === 401 && window.location.pathname !== '/login') {
+      console.log('检测到401错误，清除token并跳转到登录页');
       // 清除token并跳转到登录页
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -58,11 +77,25 @@ export const userAPI = {
   // 获取所有用户（管理员）
   getAllUsers: () => api.get('/users/all'),
 
+  // 创建用户（管理员）
+  createUser: (data: {
+    username: string;
+    email: string;
+    password: string;
+    level: string;
+  }) => api.post('/users/create', data),
+
   // 更新用户信息（管理员）
   updateUser: (id: number, data: any) => api.put(`/users/${id}`, data),
 
   // 删除用户（管理员）
   deleteUser: (id: number) => api.delete(`/users/${id}`),
+
+  // 更改密码
+  changePassword: (data: {
+    currentPassword: string;
+    newPassword: string;
+  }) => api.post('/users/change-password', data),
 };
 
 // 活动相关API（待实现）
@@ -110,6 +143,9 @@ export const positionAPI = {
 
   // 获取用户的报名记录
   getMySignups: () => api.get('/positions/my-signups'),
+
+  // 获取监管学员数量
+  getSupervisedStudentsCount: () => api.get('/positions/supervised-students-count'),
 };
 
 export default api; 

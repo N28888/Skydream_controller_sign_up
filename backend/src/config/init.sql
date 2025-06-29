@@ -16,14 +16,16 @@ CREATE TABLE IF NOT EXISTS users (
 -- 活动表
 CREATE TABLE IF NOT EXISTS events (
   id INT PRIMARY KEY AUTO_INCREMENT,
+  custom_id VARCHAR(20) UNIQUE,
   title VARCHAR(200) NOT NULL,
-  departure_airport VARCHAR(10) NOT NULL,
-  arrival_airport VARCHAR(10) NOT NULL,
+  departure_airport VARCHAR(20) NOT NULL,
+  arrival_airport VARCHAR(20) NOT NULL,
   route TEXT,
   flight_level VARCHAR(50),
   airac VARCHAR(20),
   event_date DATE NOT NULL,
   event_time TIME NOT NULL,
+  remarks TEXT,
   created_by INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -53,4 +55,9 @@ CREATE TABLE IF NOT EXISTS signups (
   signup_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (position_id) REFERENCES positions(id)
-); 
+);
+
+-- 创建默认管理员用户 (密码: admin123)
+INSERT INTO users (username, email, password, level) VALUES 
+('ADMIN', 'admin@skydream.ca', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADM')
+ON DUPLICATE KEY UPDATE username=username; 

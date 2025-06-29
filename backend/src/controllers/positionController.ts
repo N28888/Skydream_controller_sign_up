@@ -255,6 +255,35 @@ export class PositionController {
       res.status(500).json({ success: false, message: '服务器内部错误' });
     }
   }
+
+  // 获取监管学员数量
+  static async getSupervisedStudentsCount(req: Request, res: Response) {
+    try {
+      const userId = (req as any).user?.userId;
+      const userLevel = (req as any).user?.level;
+
+      if (!userId) {
+        return res.status(401).json({ success: false, message: '请先登录' });
+      }
+
+      // 只有监督员等级才能获取监管学员数量
+      if (!['I1', 'I2', 'I3', 'SUP', 'ADM'].includes(userLevel)) {
+        return res.status(403).json({ success: false, message: '权限不足' });
+      }
+
+      // 获取用户信息
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: '用户不存在' });
+      }
+
+      const count = await PositionModel.getSupervisedStudentsCount(user.username);
+      res.json({ success: true, data: { count } });
+    } catch (error) {
+      console.error('获取监管学员数量失败:', error);
+      res.status(500).json({ success: false, message: '服务器内部错误' });
+    }
+  }
 }
 
 // 检查用户等级是否有权限报名特定类型的席位

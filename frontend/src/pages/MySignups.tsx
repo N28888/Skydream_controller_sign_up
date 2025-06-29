@@ -121,7 +121,15 @@ const MySignups: React.FC = () => {
         <Space direction="vertical" size="small">
           <div>
             <EnvironmentOutlined style={{ marginRight: 4 }} />
-            <Text>活动ID: {record.event_id}</Text>
+            <Text strong>{record.event_title || `活动${record.event_id}`}</Text>
+          </div>
+          <div>
+            <CalendarOutlined style={{ marginRight: 4 }} />
+            <Text>活动日期: {record.event_date ? dayjs(record.event_date).format('YYYY-MM-DD') : '未知'}</Text>
+          </div>
+          <div>
+            <ClockCircleOutlined style={{ marginRight: 4 }} />
+            <Text>活动时间: {record.event_time ? dayjs(record.event_time, 'HH:mm:ss').format('HH:mm') : '未知'}</Text>
           </div>
           <div>
             <CalendarOutlined style={{ marginRight: 4 }} />

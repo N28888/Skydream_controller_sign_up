@@ -23,6 +23,7 @@ export interface RegisterForm {
 // 活动相关类型
 export interface Event {
   id: number;
+  custom_id?: string;
   title: string;
   departure_airport: string;
   arrival_airport: string;
@@ -31,6 +32,7 @@ export interface Event {
   airac: string;
   event_date: string;
   event_time: string;
+  remarks?: string;
   created_by: number;
   created_at: string;
   updated_at: string;
@@ -45,6 +47,7 @@ export interface EventForm {
   airac: string;
   event_date: string;
   event_time: string;
+  remarks?: string;
 }
 
 // 席位相关类型
@@ -60,6 +63,12 @@ export interface Position {
   student_supervised?: string;
   created_at: string;
   updated_at: string;
+  // 活动信息
+  event_title?: string;
+  event_date?: string;
+  event_time?: string;
+  departure_airport?: string;
+  arrival_airport?: string;
 }
 
 export interface PositionForm {
@@ -90,17 +99,17 @@ export interface LoginResponse {
 
 // 管制员等级选项
 export const LEVEL_OPTIONS = [
-  { label: 'S1 - 学员1级', value: 'S1' },
-  { label: 'S2 - 学员2级', value: 'S2' },
-  { label: 'S3 - 学员3级', value: 'S3' },
-  { label: 'C1 - 管制员1级', value: 'C1' },
-  { label: 'C2 - 管制员2级', value: 'C2' },
-  { label: 'C3 - 管制员3级', value: 'C3' },
-  { label: 'I1 - 教员1级', value: 'I1' },
-  { label: 'I2 - 教员2级', value: 'I2' },
-  { label: 'I3 - 教员3级', value: 'I3' },
-  { label: 'SUP - 监督员', value: 'SUP' },
-  { label: 'ADM - 管理员', value: 'ADM' },
+  { label: 'S1', value: 'S1' },
+  { label: 'S2', value: 'S2' },
+  { label: 'S3', value: 'S3' },
+  { label: 'C1', value: 'C1' },
+  { label: 'C2', value: 'C2' },
+  { label: 'C3', value: 'C3' },
+  { label: 'I1', value: 'I1' },
+  { label: 'I2', value: 'I2' },
+  { label: 'I3', value: 'I3' },
+  { label: 'SUP', value: 'SUP' },
+  { label: 'ADM', value: 'ADM' },
 ];
 
 // 席位类型选项

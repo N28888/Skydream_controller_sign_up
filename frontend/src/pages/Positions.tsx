@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Card,
   Button,
@@ -24,6 +24,7 @@ import {
   DeleteOutlined,
   UserOutlined,
   TeamOutlined,
+  ArrowLeftOutlined,
 } from '@ant-design/icons';
 import { positionAPI, eventAPI } from '../services/api';
 import { Position, PositionForm, PositionBatchForm, Event, POSITION_TYPE_OPTIONS } from '../types';
@@ -33,6 +34,7 @@ const { Option } = Select;
 
 const Positions: React.FC = () => {
   const { eventId } = useParams<{ eventId: string }>();
+  const navigate = useNavigate();
   const [positions, setPositions] = useState<Position[]>([]);
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(false);
@@ -278,6 +280,16 @@ const Positions: React.FC = () => {
 
   return (
     <div style={{ padding: '24px' }}>
+      <div style={{ marginBottom: 16 }}>
+        <Button
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate('/events')}
+          style={{ marginBottom: 16 }}
+        >
+          返回活动列表
+        </Button>
+      </div>
+      
       <Title level={2}>
         席位管理 - {event?.title}
       </Title>

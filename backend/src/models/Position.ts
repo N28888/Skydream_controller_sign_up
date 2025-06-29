@@ -15,6 +15,11 @@ export interface Position {
 export interface PositionWithUser extends Position {
   taken_by_username?: string;
   taken_by_level?: string;
+  event_title?: string;
+  event_date?: string;
+  event_time?: string;
+  departure_airport?: string;
+  arrival_airport?: string;
 }
 
 export class PositionModel {
@@ -204,13 +209,27 @@ export class PositionModel {
   // 获取用户的报名记录
   static async getUserSignups(userId: number): Promise<PositionWithUser[]> {
     const [rows] = await pool.execute(
-      `SELECT p.*, u.username as taken_by_username, u.level as taken_by_level 
+      `SELECT p.*, u.username as taken_by_username, u.level as taken_by_level,
+              e.title as event_title, e.event_date, e.event_time, e.departure_airport, e.arrival_airport
        FROM positions p 
        LEFT JOIN users u ON p.taken_by = u.id 
+       LEFT JOIN events e ON p.event_id = e.id
        WHERE p.taken_by = ? 
-       ORDER BY p.created_at DESC`,
+       ORDER BY e.event_date ASC, e.event_time ASC`,
       [userId]
     );
     return rows as PositionWithUser[];
+  }
+
+  // 获取监管学员数量
+  static async getSupervisedStudentsCount(supervisorUsername: string): Promise<number> {
+    const [rows] = await pool.execute(
+      `SELECT COUNT(*) as count 
+       FROM positions p 
+       WHERE p.student_supervised = ? AND p.is_taken = TRUE`,
+      [supervisorUsername]
+    );
+    const result = rows as any[];
+    return result[0]?.count || 0;
   }
 } 
