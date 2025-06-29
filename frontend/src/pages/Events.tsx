@@ -109,7 +109,7 @@ const Events: React.FC = () => {
         const response = await eventAPI.updateEvent(editingEvent.id, eventData);
         console.log('API响应:', response);
         if (response.data.success) {
-          message.success('活动更新成功');
+        message.success('活动更新成功');
         } else {
           message.error(response.data.message || '更新失败');
           return;
@@ -119,7 +119,7 @@ const Events: React.FC = () => {
         const response = await eventAPI.createEvent(eventData);
         console.log('API响应:', response);
         if (response.data.success) {
-          message.success('活动创建成功');
+        message.success('活动创建成功');
         } else {
           message.error(response.data.message || '创建失败');
           return;
@@ -250,23 +250,23 @@ const Events: React.FC = () => {
           </Button>
           {hasManagePermission() && (
             <>
-              <Button
-                type="link"
-                icon={<EditOutlined />}
-                onClick={() => showEditModal(record)}
-              >
-                编辑
-              </Button>
-              <Popconfirm
-                title="确定要删除这个活动吗？"
-                onConfirm={() => handleDelete(record.id)}
-                okText="确定"
-                cancelText="取消"
-              >
-                <Button type="link" danger icon={<DeleteOutlined />}>
-                  删除
-                </Button>
-              </Popconfirm>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => showEditModal(record)}
+          >
+            编辑
+          </Button>
+          <Popconfirm
+            title="确定要删除这个活动吗？"
+            onConfirm={() => handleDelete(record.id)}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button type="link" danger icon={<DeleteOutlined />}>
+              删除
+            </Button>
+          </Popconfirm>
             </>
           )}
         </Space>
@@ -323,13 +323,13 @@ const Events: React.FC = () => {
       {/* 操作按钮 */}
       <div style={{ marginBottom: 16 }}>
         {hasManagePermission() && (
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={showCreateModal}
-          >
-            创建活动
-          </Button>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showCreateModal}
+        >
+          创建活动
+        </Button>
         )}
       </div>
 

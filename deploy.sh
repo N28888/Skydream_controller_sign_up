@@ -1,56 +1,78 @@
 #!/bin/bash
 
-echo "🚀 开始部署 Skydream Controller Sign Up Platform..."
+# 设置变量
+VPS_IP="sj.yfanj.ca"
+VPS_USER="root"
+PROJECT_DIR="/home/your-username/skydream-project"
+BACKEND_DIR="$PROJECT_DIR/backend"
+FRONTEND_DIR="$PROJECT_DIR/frontend"
 
-# 检查Docker是否安装
-if ! command -v docker &> /dev/null; then
-    echo "❌ Docker未安装，请先安装Docker"
-    exit 1
-fi
+echo "🚀 开始部署 Skydream Controller Sign Up 系统..."
 
-# 检查docker compose（新版本）
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-    echo "❌ Docker Compose未安装，请先安装Docker Compose"
-    exit 1
-fi
+# 1. 构建前端
+echo "📦 构建前端..."
+cd frontend
+npm install
+npm run build
+cd ..
 
-# 设置Docker Compose命令
+# 2. 构建后端
+echo "🔧 构建后端..."
+cd backend
+npm install
+npm run build
+cd ..
+
+# 3. 上传到VPS
+echo "📤 上传文件到VPS..."
+rsync -avz --exclude 'node_modules' --exclude '.git' ./ $VPS_USER@$VPS_IP:$PROJECT_DIR/
+
+# 4. 在VPS上重启服务
+echo "🔄 在VPS上重启服务..."
+ssh $VPS_USER@$VPS_IP << 'EOF'
+cd /home/your-username/skydream-project
+
+# 检查docker-compose是否可用
 if command -v docker-compose &> /dev/null; then
-    DOCKER_COMPOSE="docker-compose"
+    COMPOSE_CMD="docker-compose"
+elif command -v docker &> /dev/null && docker compose version &> /dev/null; then
+    COMPOSE_CMD="docker compose"
 else
-    DOCKER_COMPOSE="docker compose"
+    echo "错误: 未找到 docker-compose 或 docker compose 命令"
+    exit 1
 fi
 
 # 停止现有容器
-echo "🛑 停止现有容器..."
-$DOCKER_COMPOSE down
+echo "停止现有容器..."
+$COMPOSE_CMD down
 
-# 清理旧镜像（可选）
-echo "🧹 清理旧镜像..."
-$DOCKER_COMPOSE down --rmi all
-
-# 构建并启动服务
-echo "🔨 构建并启动服务..."
-$DOCKER_COMPOSE up -d --build
+# 重新构建并启动容器
+echo "重新构建并启动容器..."
+$COMPOSE_CMD up -d --build
 
 # 等待服务启动
-echo "⏳ 等待服务启动..."
-sleep 30
+echo "等待服务启动..."
+sleep 10
 
 # 检查服务状态
-echo "📊 检查服务状态..."
-$DOCKER_COMPOSE ps
+echo "检查服务状态..."
+$COMPOSE_CMD ps
 
-# 检查服务健康状态
-echo "🏥 检查服务健康状态..."
-if curl -s http://localhost:3001/health > /dev/null; then
-    echo "✅ 后端服务运行正常"
-else
-    echo "❌ 后端服务可能有问题，请检查日志"
-fi
+# 检查后端日志
+echo "检查后端日志..."
+$COMPOSE_CMD logs backend --tail=20
+
+# 检查前端日志
+echo "检查前端日志..."
+$COMPOSE_CMD logs frontend --tail=20
 
 echo "✅ 部署完成！"
-echo "🌐 前端访问地址: http://sj.yfanj.ca"
-echo "🔧 后端API地址: http://sj.yfanj.ca:3001"
-echo "📊 查看日志: $DOCKER_COMPOSE logs -f"
-echo "🔍 查看特定服务日志: $DOCKER_COMPOSE logs -f [service_name]" 
+echo "🌐 前端地址: http://sj.yfanj.ca"
+echo "🔧 后端API: http://sj.yfanj.ca:3001"
+EOF
+
+echo "🎉 部署完成！"
+echo "📝 新增功能:"
+echo "   - 管理员可以创建新用户"
+echo "   - 支持设置呼号、邮箱、密码和权限等级"
+echo "   - 只有SUP和ADM用户才能创建用户" 

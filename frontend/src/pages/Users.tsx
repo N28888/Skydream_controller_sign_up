@@ -35,6 +35,7 @@ const Users: React.FC = () => {
   const [form] = Form.useForm();
   const [submitLoading, setSubmitLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   // 获取用户列表
   const fetchUsers = async () => {
@@ -98,12 +99,21 @@ const Users: React.FC = () => {
   // 处理编辑用户
   const handleEdit = (user: User) => {
     setEditingUser(user);
+    setIsCreating(false);
     form.setFieldsValue({
       username: user.username,
       email: user.email,
       level: user.level,
       password: '', // 密码字段留空
     });
+    setModalVisible(true);
+  };
+
+  // 处理创建用户
+  const handleCreate = () => {
+    setEditingUser(null);
+    setIsCreating(true);
+    form.resetFields();
     setModalVisible(true);
   };
 
@@ -122,47 +132,72 @@ const Users: React.FC = () => {
   const handleSubmit = async (values: any) => {
     console.log('handleSubmit被调用，参数:', values);
     console.log('editingUser:', editingUser);
+    console.log('isCreating:', isCreating);
     
     setSubmitLoading(true);
     
     try {
-      const updateData: any = {
-        username: values.username,
-        email: values.email,
-        level: values.level,
-      };
-
-      // 只有当密码字段不为空时才更新密码
-      if (values.password) {
-        updateData.password = values.password;
-      }
-
-      console.log('准备更新的数据:', updateData);
-
-      if (editingUser) {
-        console.log('开始调用API更新用户:', editingUser.id);
-        console.log('API URL:', `/api/users/${editingUser.id}`);
-        console.log('请求数据:', updateData);
+      if (isCreating) {
+        // 创建新用户
+        console.log('开始创建新用户');
+        console.log('请求数据:', values);
         
-        const response = await userAPI.updateUser(editingUser.id!, updateData);
-        console.log('API响应:', response);
-        console.log('响应状态:', response.status);
-        console.log('响应数据:', response.data);
+        const response = await userAPI.createUser({
+          username: values.username,
+          email: values.email,
+          password: values.password,
+          level: values.level,
+        });
+        
+        console.log('创建用户API响应:', response);
         
         if (response.data.success) {
-        message.success('用户更新成功');
+          message.success('用户创建成功');
         } else {
-          message.error(response.data.message || '更新失败');
+          message.error(response.data.message || '创建失败');
           return;
+        }
+      } else {
+        // 更新现有用户
+        const updateData: any = {
+          username: values.username,
+          email: values.email,
+          level: values.level,
+        };
+
+        // 只有当密码字段不为空时才更新密码
+        if (values.password) {
+          updateData.password = values.password;
+        }
+
+        console.log('准备更新的数据:', updateData);
+
+        if (editingUser) {
+          console.log('开始调用API更新用户:', editingUser.id);
+          console.log('API URL:', `/api/users/${editingUser.id}`);
+          console.log('请求数据:', updateData);
+          
+          const response = await userAPI.updateUser(editingUser.id!, updateData);
+          console.log('API响应:', response);
+          console.log('响应状态:', response.status);
+          console.log('响应数据:', response.data);
+          
+          if (response.data.success) {
+            message.success('用户更新成功');
+          } else {
+            message.error(response.data.message || '更新失败');
+            return;
+          }
         }
       }
 
       setModalVisible(false);
       setEditingUser(null);
+      setIsCreating(false);
       form.resetFields();
       fetchUsers();
     } catch (error: any) {
-      console.error('更新用户时发生错误:', error);
+      console.error('操作失败:', error);
       console.error('错误详情:', {
         message: error.message,
         status: error.response?.status,
@@ -283,6 +318,14 @@ const Users: React.FC = () => {
               </span>
             )}
             <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleCreate}
+              disabled={!currentUser || !['SUP', 'ADM'].includes(currentUser.level)}
+            >
+              添加用户
+            </Button>
+            <Button
               icon={<ReloadOutlined />}
               onClick={fetchUsers}
               loading={loading}
@@ -324,11 +367,12 @@ const Users: React.FC = () => {
 
       {/* 编辑用户模态框 */}
       <Modal
-        title={editingUser ? '编辑用户' : '添加用户'}
+        title={isCreating ? '添加用户' : '编辑用户'}
         open={modalVisible}
         onCancel={() => {
           setModalVisible(false);
           setEditingUser(null);
+          setIsCreating(false);
           form.resetFields();
         }}
         footer={null}
@@ -395,11 +439,12 @@ const Users: React.FC = () => {
             name="password"
             label="密码"
             rules={[
+              { required: isCreating, message: '请输入密码' },
               { min: 6, message: '密码长度至少6个字符' },
             ]}
           >
             <Input.Password 
-              placeholder={editingUser ? '留空则不修改密码' : '请输入密码'} 
+              placeholder={isCreating ? '请输入密码' : '留空则不修改密码'} 
             />
           </Form.Item>
 
@@ -410,12 +455,13 @@ const Users: React.FC = () => {
                 htmlType="submit"
                 loading={submitLoading}
               >
-                {editingUser ? '更新' : '创建'}
+                {isCreating ? '创建' : '更新'}
               </Button>
               <Button
                 onClick={() => {
                   setModalVisible(false);
                   setEditingUser(null);
+                  setIsCreating(false);
                   form.resetFields();
                 }}
               >

@@ -43,7 +43,7 @@ const MainLayout: React.FC = () => {
         message.success('已退出登录');
         navigate('/login');
         setLogoutLoading(false);
-      }, 500);
+      }, 1000);
     } else {
       console.log('用户取消退出');
     }

@@ -55,4 +55,9 @@ CREATE TABLE IF NOT EXISTS signups (
   signup_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (position_id) REFERENCES positions(id)
-); 
+);
+
+-- 创建默认管理员用户 (密码: admin123)
+INSERT INTO users (username, email, password, level) VALUES 
+('ADMIN', 'admin@skydream.ca', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADM')
+ON DUPLICATE KEY UPDATE username=username; 
