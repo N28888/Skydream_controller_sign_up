@@ -79,5 +79,12 @@ class EventModel {
             return result.affectedRows > 0;
         });
     }
+    // 查找已过期活动（活动日早于指定日期）
+    static findExpired(date) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const [rows] = yield database_1.default.execute('SELECT * FROM events WHERE event_date < ?', [date]);
+            return rows;
+        });
+    }
 }
 exports.EventModel = EventModel;

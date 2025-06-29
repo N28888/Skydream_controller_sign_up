@@ -69,7 +69,7 @@ class PositionModel {
         });
     }
     // 报名席位
-    static signup(positionId, userId, studentSupervised) {
+    static signup(positionId, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             const connection = yield database_1.default.getConnection();
             try {
@@ -84,7 +84,7 @@ class PositionModel {
                     throw new Error('席位已被占用');
                 }
                 // 更新席位状态
-                yield connection.execute('UPDATE positions SET is_taken = TRUE, taken_by = ?, student_supervised = ? WHERE id = ?', [userId, typeof studentSupervised === 'undefined' ? null : studentSupervised, positionId]);
+                yield connection.execute('UPDATE positions SET is_taken = TRUE, taken_by = ? WHERE id = ?', [userId, positionId]);
                 // 创建报名记录
                 yield connection.execute('INSERT INTO signups (user_id, position_id) VALUES (?, ?)', [userId, positionId]);
                 yield connection.commit();

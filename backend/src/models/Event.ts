@@ -93,4 +93,13 @@ export class EventModel {
     );
     return (result as any).affectedRows > 0;
   }
+
+  // 查找已过期活动（活动日早于指定日期）
+  static async findExpired(date: string): Promise<Event[]> {
+    const [rows] = await pool.execute(
+      'SELECT * FROM events WHERE event_date < ?',
+      [date]
+    );
+    return rows as Event[];
+  }
 } 

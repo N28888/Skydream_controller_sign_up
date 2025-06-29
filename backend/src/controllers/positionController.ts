@@ -154,7 +154,6 @@ export class PositionController {
     try {
       const positionId = Number(req.params.id);
       const userId = (req as any).user?.userId;
-      const { student_supervised } = req.body;
 
       if (!userId) {
         return res.status(401).json({ success: false, message: '请先登录' });
@@ -190,18 +189,7 @@ export class PositionController {
         });
       }
 
-      // 如果是学生等级且指定了监督员，验证监督员是否存在
-      if (student_supervised) {
-        const supervisor = await UserModel.findByUsername(student_supervised);
-        if (!supervisor || !['I1', 'I2', 'I3', 'SUP', 'ADM'].includes(supervisor.level)) {
-          return res.status(400).json({ 
-            success: false, 
-            message: '指定的监督员不存在或无监督权限' 
-          });
-        }
-      }
-
-      await PositionModel.signup(positionId, userId, student_supervised);
+      await PositionModel.signup(positionId, userId);
       
       const updatedPosition = await PositionModel.findById(positionId);
       res.json({ success: true, message: '席位报名成功', data: updatedPosition });

@@ -159,7 +159,6 @@ const MySignups: React.FC = () => {
 
   // 统计数据
   const totalSignups = signups.length;
-  const supervisedSignups = signups.filter(p => p.student_supervised).length;
 
   return (
     <div style={{ padding: '24px' }}>
@@ -167,31 +166,11 @@ const MySignups: React.FC = () => {
 
       {/* 统计卡片 */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={8}>
+        <Col span={24}>
           <Card>
             <Statistic
               title="总报名数"
               value={totalSignups}
-              prefix={<UserOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="需监督"
-              value={supervisedSignups}
-              valueStyle={{ color: '#f5222d' }}
-              prefix={<UserOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="独立席位"
-              value={totalSignups - supervisedSignups}
-              valueStyle={{ color: '#52c41a' }}
               prefix={<UserOutlined />}
             />
           </Card>

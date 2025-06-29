@@ -278,16 +278,7 @@ const Events: React.FC = () => {
       
       {/* 统计卡片 */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="总活动数"
-              value={totalEvents}
-              prefix={<CalendarOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
+        <Col span={12}>
           <Card>
             <Statistic
               title="即将举行的活动"
@@ -297,7 +288,7 @@ const Events: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col span={12}>
           <Card>
             <Statistic
               title="今日活动"

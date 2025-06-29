@@ -88,7 +88,7 @@ export class PositionModel {
   }
 
   // 报名席位
-  static async signup(positionId: number, userId: number, studentSupervised?: string): Promise<boolean> {
+  static async signup(positionId: number, userId: number): Promise<boolean> {
     const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
@@ -110,8 +110,8 @@ export class PositionModel {
 
       // 更新席位状态
       await connection.execute(
-        'UPDATE positions SET is_taken = TRUE, taken_by = ?, student_supervised = ? WHERE id = ?',
-        [userId, typeof studentSupervised === 'undefined' ? null : studentSupervised, positionId]
+        'UPDATE positions SET is_taken = TRUE, taken_by = ? WHERE id = ?',
+        [userId, positionId]
       );
 
       // 创建报名记录

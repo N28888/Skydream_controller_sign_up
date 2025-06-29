@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes';
 import eventRoutes from './routes/eventRoutes';
 import positionRoutes from './routes/positionRoutes';
+import './cleanup';
 
 // 加载环境变量
 dotenv.config();
