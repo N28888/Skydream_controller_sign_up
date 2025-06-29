@@ -21,6 +21,7 @@ const Dashboard: React.FC = () => {
     mySignups: 0,
     upcomingEvents: 0,
   });
+  const [nextEvent, setNextEvent] = useState<Event | null>(null);
   const [recentEvents, setRecentEvents] = useState<Event[]>([]);
   const [mySignups, setMySignups] = useState<Position[]>([]);
 
@@ -53,11 +54,22 @@ const Dashboard: React.FC = () => {
         dayjs(event.event_date).isAfter(dayjs(), 'day')
       ).length;
 
+      // 获取下次活动（最近的未来活动）
+      const futureEvents = allEvents.filter((event: Event) => 
+        dayjs(event.event_date).isAfter(dayjs(), 'day')
+      );
+      const nextEventData = futureEvents.length > 0 
+        ? futureEvents.sort((a: Event, b: Event) => 
+            dayjs(a.event_date).diff(dayjs(b.event_date))
+          )[0] 
+        : null;
+
       setStats({
         totalEvents,
         mySignups: mySignupsCount,
         upcomingEvents,
       });
+      setNextEvent(nextEventData);
 
       // 获取最近5个活动
       const sortedEvents = allEvents.sort((a: Event, b: Event) => {
@@ -189,12 +201,18 @@ const Dashboard: React.FC = () => {
         <Col span={8}>
           <Card>
             <Statistic
-              title="总活动数"
-              value={stats.totalEvents}
+              title="下次活动"
+              value={nextEvent ? dayjs(nextEvent.event_date).format('MM-DD') : '暂无'}
               prefix={<CalendarOutlined />}
               valueStyle={{ color: '#cf1322' }}
               loading={loading}
+              suffix={nextEvent ? dayjs(nextEvent.event_time, 'HH:mm:ss').format('HH:mm') : ''}
             />
+            {nextEvent && (
+              <div style={{ marginTop: 8, fontSize: '12px', color: '#666' }}>
+                {nextEvent.title}
+              </div>
+            )}
           </Card>
         </Col>
       </Row>
