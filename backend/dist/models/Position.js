@@ -163,11 +163,13 @@ class PositionModel {
     // 获取用户的报名记录
     static getUserSignups(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const [rows] = yield database_1.default.execute(`SELECT p.*, u.username as taken_by_username, u.level as taken_by_level 
+            const [rows] = yield database_1.default.execute(`SELECT p.*, u.username as taken_by_username, u.level as taken_by_level,
+              e.title as event_title, e.event_date, e.event_time, e.departure_airport, e.arrival_airport
        FROM positions p 
        LEFT JOIN users u ON p.taken_by = u.id 
+       LEFT JOIN events e ON p.event_id = e.id
        WHERE p.taken_by = ? 
-       ORDER BY p.created_at DESC`, [userId]);
+       ORDER BY e.event_date ASC, e.event_time ASC`, [userId]);
             return rows;
         });
     }
