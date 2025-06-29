@@ -9,6 +9,7 @@ import {
   LogoutOutlined,
   DashboardOutlined,
   SettingOutlined,
+  LockOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { User } from '../types';
@@ -63,6 +64,12 @@ const MainLayout: React.FC = () => {
       onClick: () => navigate('/settings'),
     },
     {
+      key: 'change-password',
+      icon: <UserOutlined />,
+      label: '更改密码',
+      onClick: () => navigate('/change-password'),
+    },
+    {
       type: 'divider' as const,
     },
     {
@@ -89,6 +96,11 @@ const MainLayout: React.FC = () => {
       key: '/positions',
       icon: <TeamOutlined />,
       label: '我的报名',
+    },
+    {
+      key: '/change-password',
+      icon: <LockOutlined />,
+      label: '更改密码',
     },
     {
       key: '/users',

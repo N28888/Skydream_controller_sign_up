@@ -81,17 +81,17 @@ const Users: React.FC = () => {
   // 获取等级中文名称
   const getLevelName = (level: string) => {
     const names: { [key: string]: string } = {
-      'S1': '学生1级',
-      'S2': '学生2级',
-      'S3': '学生3级',
-      'C1': '管制员1级',
-      'C2': '管制员2级',
-      'C3': '管制员3级',
-      'I1': '教员1级',
-      'I2': '教员2级',
-      'I3': '教员3级',
-      'SUP': '监督员',
-      'ADM': '管理员',
+      'S1': 'S1',
+      'S2': 'S2',
+      'S3': 'S3',
+      'C1': 'C1',
+      'C2': 'C2',
+      'C3': 'C3',
+      'I1': 'I1',
+      'I2': 'I2',
+      'I3': 'I3',
+      'SUP': 'SUP',
+      'ADM': 'ADM',
     };
     return names[level] || level;
   };
@@ -210,16 +210,6 @@ const Users: React.FC = () => {
     }
   };
 
-  // 测试状态更新
-  const testStateUpdate = () => {
-    console.log('测试状态更新');
-    setSubmitLoading(true);
-    setTimeout(() => {
-      setSubmitLoading(false);
-      message.success('状态更新测试成功');
-    }, 1000);
-  };
-
   // 获取当前用户信息
   const fetchCurrentUser = async () => {
     try {
@@ -331,22 +321,6 @@ const Users: React.FC = () => {
               loading={loading}
             >
               刷新
-            </Button>
-            <Button
-              onClick={() => {
-                console.log('测试按钮被点击');
-                message.info('测试按钮工作正常');
-              }}
-              type="default"
-            >
-              测试点击
-            </Button>
-            <Button
-              onClick={testStateUpdate}
-              type="dashed"
-              loading={submitLoading}
-            >
-              测试状态
             </Button>
           </Space>
         </div>

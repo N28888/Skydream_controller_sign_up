@@ -13,6 +13,7 @@ router.post('/register', asyncHandler(userController_1.UserController.register))
 router.post('/login', asyncHandler(userController_1.UserController.login));
 // 需要认证的路由
 router.get('/profile', auth_1.authenticateToken, asyncHandler(userController_1.UserController.getProfile));
+router.post('/change-password', auth_1.authenticateToken, asyncHandler(userController_1.UserController.changePassword));
 // 需要管理员权限的路由
 router.post('/create', auth_1.authenticateToken, auth_1.requireAdmin, asyncHandler(userController_1.UserController.createUser));
 router.get('/all', auth_1.authenticateToken, auth_1.requireAdmin, asyncHandler(userController_1.UserController.getAllUsers));

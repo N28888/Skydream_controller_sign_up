@@ -10,6 +10,7 @@ import EventDetail from './pages/EventDetail';
 import Positions from './pages/Positions';
 import MySignups from './pages/MySignups';
 import Users from './pages/Users';
+import ChangePassword from './pages/ChangePassword';
 import Layout from './components/Layout';
 import './App.css';
 
@@ -55,6 +56,7 @@ function App() {
             <Route path="events/:eventId/positions" element={<Positions />} />
             <Route path="positions" element={<MySignups />} />
             <Route path="users" element={<Users />} />
+            <Route path="change-password" element={<ChangePassword />} />
             <Route path="profile" element={<div>个人资料页面（待开发）</div>} />
             <Route path="settings" element={<div>设置页面（待开发）</div>} />
           </Route>

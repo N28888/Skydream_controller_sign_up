@@ -90,6 +90,12 @@ export const userAPI = {
 
   // 删除用户（管理员）
   deleteUser: (id: number) => api.delete(`/users/${id}`),
+
+  // 更改密码
+  changePassword: (data: {
+    currentPassword: string;
+    newPassword: string;
+  }) => api.post('/users/change-password', data),
 };
 
 // 活动相关API（待实现）
