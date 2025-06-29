@@ -28,6 +28,7 @@ import {
 } from '@ant-design/icons';
 import { positionAPI, eventAPI } from '../services/api';
 import { Position, PositionForm, PositionBatchForm, Event, POSITION_TYPE_OPTIONS } from '../types';
+import { useMediaQuery } from 'react-responsive';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -44,6 +45,7 @@ const Positions: React.FC = () => {
   const [form] = Form.useForm();
   const [batchForm] = Form.useForm();
   const [submitLoading, setSubmitLoading] = useState(false);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   // 获取席位列表
   const fetchPositions = async () => {
@@ -279,7 +281,7 @@ const Positions: React.FC = () => {
   const supervisedPositions = positions.filter(p => p.student_supervised).length;
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: isMobile ? '16px' : '24px' }}>
       <div style={{ marginBottom: 16 }}>
         <Button
           icon={<ArrowLeftOutlined />}
@@ -290,47 +292,48 @@ const Positions: React.FC = () => {
         </Button>
       </div>
       
-      <Title level={2}>
+      <Title level={isMobile ? 4 : 2}>
         席位管理 - {event?.title}
       </Title>
 
       {/* 统计卡片 */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={6}>
-          <Card>
+      <Row gutter={isMobile ? 8 : 16} style={{ marginBottom: 24 }}>
+        <Col span={isMobile ? 12 : 6}>
+          <Card size={isMobile ? 'small' : 'default'}>
             <Statistic
               title="总席位"
               value={totalPositions}
               prefix={<TeamOutlined />}
+              valueStyle={{ fontSize: isMobile ? '16px' : '24px' }}
             />
           </Card>
         </Col>
-        <Col span={6}>
-          <Card>
+        <Col span={isMobile ? 12 : 6}>
+          <Card size={isMobile ? 'small' : 'default'}>
             <Statistic
               title="可报名"
               value={availablePositions}
-              valueStyle={{ color: '#3f8600' }}
+              valueStyle={{ color: '#3f8600', fontSize: isMobile ? '16px' : '24px' }}
               prefix={<UserOutlined />}
             />
           </Card>
         </Col>
-        <Col span={6}>
-          <Card>
+        <Col span={isMobile ? 12 : 6}>
+          <Card size={isMobile ? 'small' : 'default'}>
             <Statistic
               title="已报名"
               value={takenPositions}
-              valueStyle={{ color: '#faad14' }}
+              valueStyle={{ color: '#faad14', fontSize: isMobile ? '16px' : '24px' }}
               prefix={<UserOutlined />}
             />
           </Card>
         </Col>
-        <Col span={6}>
-          <Card>
+        <Col span={isMobile ? 12 : 6}>
+          <Card size={isMobile ? 'small' : 'default'}>
             <Statistic
               title="需监督"
               value={supervisedPositions}
-              valueStyle={{ color: '#f5222d' }}
+              valueStyle={{ color: '#f5222d', fontSize: isMobile ? '16px' : '24px' }}
               prefix={<UserOutlined />}
             />
           </Card>
@@ -339,36 +342,110 @@ const Positions: React.FC = () => {
 
       {/* 操作按钮 */}
       <div style={{ marginBottom: 16 }}>
-        <Space>
+        <Space direction={isMobile ? 'vertical' : 'horizontal'} style={{ width: '100%' }}>
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={showCreateModal}
+            size={isMobile ? 'large' : 'middle'}
+            style={isMobile ? { width: '100%' } : {}}
           >
             创建席位
           </Button>
           <Button
             icon={<PlusOutlined />}
             onClick={() => setBatchModalVisible(true)}
+            size={isMobile ? 'large' : 'middle'}
+            style={isMobile ? { width: '100%' } : {}}
           >
             批量创建
           </Button>
         </Space>
       </div>
 
-      {/* 席位列表表格 */}
-      <Table
-        columns={columns}
-        dataSource={positions}
-        rowKey="id"
-        loading={loading}
-        pagination={{
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (total, range) =>
-            `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
-        }}
-      />
+      {/* 移动端卡片列表 */}
+      {isMobile ? (
+        <div>
+          {positions.map(position => (
+            <Card
+              key={position.id}
+              style={{ marginBottom: 12 }}
+              size="small"
+              title={
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span><strong>{position.position_name}</strong></span>
+                  <Tag color={getPositionTypeColor(position.position_type)}>
+                    {getPositionTypeName(position.position_type)}
+                  </Tag>
+                </div>
+              }
+            >
+              <div style={{ marginBottom: 8 }}>
+                <Tag color={position.is_taken ? 'red' : 'green'}>
+                  {position.is_taken ? '已占用' : '可报名'}
+                </Tag>
+              </div>
+              {position.is_taken ? (
+                <div style={{ marginBottom: 8 }}>
+                  <div style={{ fontSize: 13, marginBottom: 4 }}>
+                    <UserOutlined style={{ marginRight: 4 }} />
+                    {position.taken_by_username} ({position.taken_by_level})
+                  </div>
+                  {position.student_supervised && (
+                    <div style={{ fontSize: 12, color: '#666' }}>
+                      监督员: {position.student_supervised}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ fontSize: 12, color: '#999', marginBottom: 8 }}>
+                  无人报名
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <Button
+                  size="small"
+                  icon={<EditOutlined />}
+                  onClick={() => showEditModal(position)}
+                  disabled={position.is_taken}
+                >
+                  编辑
+                </Button>
+                <Popconfirm
+                  title="确定要删除这个席位吗？"
+                  description="删除后无法恢复"
+                  onConfirm={() => handleDelete(position.id)}
+                  okText="确定"
+                  cancelText="取消"
+                  disabled={position.is_taken}
+                >
+                  <Button 
+                    size="small"
+                    danger 
+                    icon={<DeleteOutlined />}
+                    disabled={position.is_taken}
+                  >
+                    删除
+                  </Button>
+                </Popconfirm>
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={positions}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total, range) =>
+              `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
+          }}
+        />
+      )}
 
       {/* 创建/编辑席位模态框 */}
       <Modal
@@ -380,7 +457,7 @@ const Positions: React.FC = () => {
           form.resetFields();
         }}
         footer={null}
-        width={500}
+        width={isMobile ? '90%' : 500}
       >
         <Form
           form={form}
@@ -410,8 +487,14 @@ const Positions: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit" loading={submitLoading}>
+            <Space direction={isMobile ? 'vertical' : 'horizontal'} style={{ width: '100%' }}>
+              <Button 
+                type="primary" 
+                htmlType="submit" 
+                loading={submitLoading}
+                size={isMobile ? 'large' : 'middle'}
+                style={isMobile ? { width: '100%' } : {}}
+              >
                 {editingPosition ? '更新' : '创建'}
               </Button>
               <Button
@@ -420,6 +503,8 @@ const Positions: React.FC = () => {
                   setEditingPosition(null);
                   form.resetFields();
                 }}
+                size={isMobile ? 'large' : 'middle'}
+                style={isMobile ? { width: '100%' } : {}}
               >
                 取消
               </Button>
@@ -437,7 +522,7 @@ const Positions: React.FC = () => {
           batchForm.resetFields();
         }}
         footer={null}
-        width={600}
+        width={isMobile ? '95%' : 600}
       >
         <Form
           form={batchForm}
@@ -453,8 +538,8 @@ const Positions: React.FC = () => {
               {(fields, { add, remove }) => (
                 <>
                   {fields.map(({ key, name, ...restField }) => (
-                    <Row gutter={16} key={key} style={{ marginBottom: 8 }}>
-                      <Col span={12}>
+                    <Row gutter={isMobile ? 8 : 16} key={key} style={{ marginBottom: 8 }}>
+                      <Col span={isMobile ? 10 : 12}>
                         <Form.Item
                           {...restField}
                           name={[name, 'position_name']}
@@ -463,7 +548,7 @@ const Positions: React.FC = () => {
                           <Input placeholder="席位名称" />
                         </Form.Item>
                       </Col>
-                      <Col span={10}>
+                      <Col span={isMobile ? 10 : 10}>
                         <Form.Item
                           {...restField}
                           name={[name, 'position_type']}
@@ -478,11 +563,12 @@ const Positions: React.FC = () => {
                           </Select>
                         </Form.Item>
                       </Col>
-                      <Col span={2}>
+                      <Col span={isMobile ? 4 : 2}>
                         <Button
                           type="link"
                           danger
                           onClick={() => remove(name)}
+                          size={isMobile ? 'small' : 'middle'}
                         >
                           删除
                         </Button>
@@ -495,6 +581,7 @@ const Positions: React.FC = () => {
                       onClick={() => add()}
                       block
                       icon={<PlusOutlined />}
+                      size={isMobile ? 'large' : 'middle'}
                     >
                       添加席位
                     </Button>
@@ -505,8 +592,13 @@ const Positions: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit">
+            <Space direction={isMobile ? 'vertical' : 'horizontal'} style={{ width: '100%' }}>
+              <Button 
+                type="primary" 
+                htmlType="submit"
+                size={isMobile ? 'large' : 'middle'}
+                style={isMobile ? { width: '100%' } : {}}
+              >
                 批量创建
               </Button>
               <Button
@@ -514,6 +606,8 @@ const Positions: React.FC = () => {
                   setBatchModalVisible(false);
                   batchForm.resetFields();
                 }}
+                size={isMobile ? 'large' : 'middle'}
+                style={isMobile ? { width: '100%' } : {}}
               >
                 取消
               </Button>

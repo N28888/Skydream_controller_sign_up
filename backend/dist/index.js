@@ -11,6 +11,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const eventRoutes_1 = __importDefault(require("./routes/eventRoutes"));
 const positionRoutes_1 = __importDefault(require("./routes/positionRoutes"));
+require("./cleanup");
 // 加载环境变量
 dotenv_1.default.config();
 const app = (0, express_1.default)();

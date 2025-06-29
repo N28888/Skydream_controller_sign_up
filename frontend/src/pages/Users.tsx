@@ -13,6 +13,7 @@ import {
   Card,
   Typography,
   Tooltip,
+  Divider,
 } from 'antd';
 import {
   EditOutlined,
@@ -20,6 +21,8 @@ import {
   UserOutlined,
   PlusOutlined,
   ReloadOutlined,
+  MailOutlined,
+  CalendarOutlined,
 } from '@ant-design/icons';
 import { userAPI } from '../services/api';
 import { User } from '../types';
@@ -36,13 +39,32 @@ const Users: React.FC = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // 检测移动端
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // 获取用户列表
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const response = await userAPI.getAllUsers();
-      setUsers(response.data.data);
+      // 按呼号数字大小排序
+      const sortedUsers = response.data.data.sort((a: User, b: User) => {
+        const numA = parseInt(a.username, 10);
+        const numB = parseInt(b.username, 10);
+        return numA - numB;
+      });
+      setUsers(sortedUsers);
     } catch (error: any) {
       console.error('获取用户列表失败:', error);
       console.error('错误详情:', {
@@ -221,7 +243,7 @@ const Users: React.FC = () => {
     }
   };
 
-  // 表格列定义
+  // 表格列定义（桌面端）
   const columns = [
     {
       title: '呼号',
@@ -294,49 +316,133 @@ const Users: React.FC = () => {
     },
   ];
 
+  // 移动端用户卡片
+  const renderMobileUserCard = (user: User) => (
+    <Card
+      key={user.id}
+      style={{ marginBottom: 16 }}
+      bodyStyle={{ padding: '16px' }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+            <UserOutlined style={{ marginRight: 8, color: '#1890ff' }} />
+            <Typography.Text strong style={{ fontSize: '16px' }}>
+              {user.username}
+            </Typography.Text>
+          </div>
+          <Tag color={getLevelColor(user.level)} style={{ marginBottom: 8 }}>
+            {getLevelName(user.level)}
+          </Tag>
+        </div>
+        <Space direction="vertical" size="small">
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            size="small"
+            onClick={() => handleEdit(user)}
+          >
+            编辑
+          </Button>
+          <Popconfirm
+            title="确定要删除这个用户吗？"
+            description="此操作不可撤销"
+            onConfirm={() => handleDelete(user.id!)}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              size="small"
+            >
+              删除
+            </Button>
+          </Popconfirm>
+        </Space>
+      </div>
+      
+      <Divider style={{ margin: '12px 0' }} />
+      
+      <div style={{ fontSize: '14px', color: '#666' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
+          <MailOutlined style={{ marginRight: 8 }} />
+          <span>{user.email}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <CalendarOutlined style={{ marginRight: 8 }} />
+          <span>注册时间: {new Date(user.created_at).toLocaleString('zh-CN')}</span>
+        </div>
+      </div>
+    </Card>
+  );
+
   return (
     <div>
       <Card>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row',
+          justifyContent: 'space-between', 
+          alignItems: isMobile ? 'stretch' : 'center', 
+          marginBottom: 16,
+          gap: isMobile ? 12 : 0
+        }}>
           <Title level={3} style={{ margin: 0 }}>
             <UserOutlined /> 用户管理
           </Title>
-          <Space>
+          <Space direction={isMobile ? 'vertical' : 'horizontal'} style={{ width: isMobile ? '100%' : 'auto' }}>
             {currentUser && (
-              <span style={{ color: '#666' }}>
+              <span style={{ color: '#666', textAlign: isMobile ? 'center' : 'left' }}>
                 当前用户: {currentUser.username} ({currentUser.level})
               </span>
             )}
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleCreate}
-              disabled={!currentUser || !['SUP', 'ADM'].includes(currentUser.level)}
-            >
-              添加用户
-            </Button>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={fetchUsers}
-              loading={loading}
-            >
-              刷新
-            </Button>
+            <div style={{ display: 'flex', gap: 8, justifyContent: isMobile ? 'center' : 'flex-end' }}>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleCreate}
+                disabled={!currentUser || !['SUP', 'ADM'].includes(currentUser.level)}
+                style={{ flex: isMobile ? 1 : 'auto' }}
+              >
+                添加用户
+              </Button>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={fetchUsers}
+                loading={loading}
+                style={{ flex: isMobile ? 1 : 'auto' }}
+              >
+                刷新
+              </Button>
+            </div>
           </Space>
         </div>
 
-        <Table
-          columns={columns}
-          dataSource={users}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total) => `共 ${total} 个用户`,
-            pageSize: 10,
-          }}
-        />
+        {isMobile ? (
+          <div>
+            {users.map(renderMobileUserCard)}
+            {users.length === 0 && !loading && (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+                暂无用户数据
+              </div>
+            )}
+          </div>
+        ) : (
+          <Table
+            columns={columns}
+            dataSource={users}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total) => `共 ${total} 个用户`,
+              pageSize: 10,
+            }}
+          />
+        )}
       </Card>
 
       {/* 编辑用户模态框 */}
@@ -350,7 +456,8 @@ const Users: React.FC = () => {
           form.resetFields();
         }}
         footer={null}
-        width={500}
+        width={isMobile ? '90%' : 500}
+        style={{ top: isMobile ? 20 : 100 }}
       >
         <Form
           form={form}
@@ -423,7 +530,7 @@ const Users: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <Space>
+            <Space style={{ width: '100%', justifyContent: 'center' }}>
               <Button 
                 type="primary" 
                 htmlType="submit"

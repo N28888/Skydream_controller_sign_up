@@ -1,0 +1,606 @@
+/* CSS变量定义 */
+:root {
+  --password-requirements-bg: #f6f8fa;
+  --password-requirements-border: #e1e4e8;
+}
+
+/* 深色模式样式 */
+.dark-mode {
+  background-color: #141414 !important;
+  color: #ffffff !important;
+  --password-requirements-bg: #262626 !important;
+  --password-requirements-border: #434343 !important;
+}
+
+/* 深色模式下的布局组件 */
+.dark-mode .ant-layout {
+  background-color: #141414 !important;
+}
+
+.dark-mode .ant-layout-header {
+  background-color: #1f1f1f !important;
+  border-bottom: 1px solid #303030 !important;
+}
+
+.dark-mode .ant-layout-content {
+  background-color: #1f1f1f !important;
+}
+
+/* 深色模式下的卡片 */
+.dark-mode .ant-card {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+}
+
+.dark-mode .ant-card-head {
+  background-color: #262626 !important;
+  border-bottom-color: #434343 !important;
+}
+
+.dark-mode .ant-card-head-title {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的表格 */
+.dark-mode .ant-table {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-table-thead > tr > th {
+  background-color: #1f1f1f !important;
+  color: #ffffff !important;
+  border-bottom-color: #434343 !important;
+}
+
+.dark-mode .ant-table-tbody > tr > td {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+  border-bottom-color: #434343 !important;
+}
+
+.dark-mode .ant-table-tbody > tr:hover > td {
+  background-color: #303030 !important;
+}
+
+/* 深色模式下的按钮 */
+.dark-mode .ant-btn {
+  border-color: #434343 !important;
+}
+
+.dark-mode .ant-btn-default {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-btn-default:hover {
+  background-color: #303030 !important;
+  border-color: #595959 !important;
+}
+
+/* 深色模式下的输入框 */
+.dark-mode .ant-input {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-input:focus,
+.dark-mode .ant-input-focused {
+  border-color: #177ddc !important;
+  box-shadow: 0 0 0 2px rgba(23, 125, 220, 0.2) !important;
+}
+
+/* 深色模式下的选择器 */
+.dark-mode .ant-select-selector {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-select-dropdown {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+}
+
+.dark-mode .ant-select-item {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-select-item-option-selected {
+  background-color: #177ddc !important;
+}
+
+/* 深色模式下的模态框 */
+.dark-mode .ant-modal-content {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-modal-header {
+  background-color: #262626 !important;
+  border-bottom-color: #434343 !important;
+}
+
+.dark-mode .ant-modal-title {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-modal-close {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的下拉菜单 */
+.dark-mode .ant-dropdown-menu {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+}
+
+.dark-mode .ant-dropdown-menu-item {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-dropdown-menu-item:hover {
+  background-color: #303030 !important;
+}
+
+/* 深色模式下的标签页 */
+.dark-mode .ant-tabs-tab {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-tabs-tab-active {
+  color: #177ddc !important;
+}
+
+.dark-mode .ant-tabs-ink-bar {
+  background-color: #177ddc !important;
+}
+
+/* 深色模式下的分页 */
+.dark-mode .ant-pagination-item {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-pagination-item:hover {
+  border-color: #177ddc !important;
+}
+
+.dark-mode .ant-pagination-item-active {
+  background-color: #177ddc !important;
+  border-color: #177ddc !important;
+}
+
+/* 深色模式下的统计数字 */
+.dark-mode .ant-statistic-title {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-statistic-content {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的描述列表 */
+.dark-mode .ant-descriptions-item-label {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-descriptions-item-content {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的列表 */
+.dark-mode .ant-list-item {
+  border-bottom-color: #434343 !important;
+}
+
+.dark-mode .ant-list-item-meta-title {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-list-item-meta-description {
+  color: #d9d9d9 !important;
+}
+
+/* 深色模式下的空状态 */
+.dark-mode .ant-empty-description {
+  color: #d9d9d9 !important;
+}
+
+/* 深色模式下的消息提示 */
+.dark-mode .ant-message-notice-content {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+/* 深色模式下的确认框 */
+.dark-mode .ant-popover-inner {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-popover-title {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-popover-inner-content {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的文本组件 */
+.dark-mode .ant-typography {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-typography h1,
+.dark-mode .ant-typography h2,
+.dark-mode .ant-typography h3,
+.dark-mode .ant-typography h4,
+.dark-mode .ant-typography h5,
+.dark-mode .ant-typography h6 {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-typography strong {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-typography code {
+  background-color: #1f1f1f !important;
+  color: #ffffff !important;
+  border-color: #434343 !important;
+}
+
+/* 深色模式下的标签 */
+.dark-mode .ant-tag {
+  border-color: #434343 !important;
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-tag-blue {
+  background-color: #111b26 !important;
+  border-color: #177ddc !important;
+  color: #177ddc !important;
+}
+
+.dark-mode .ant-tag-cyan {
+  background-color: #102027 !important;
+  border-color: #13c2c2 !important;
+  color: #13c2c2 !important;
+}
+
+.dark-mode .ant-tag-geekblue {
+  background-color: #131629 !important;
+  border-color: #2f54eb !important;
+  color: #2f54eb !important;
+}
+
+.dark-mode .ant-tag-green {
+  background-color: #162312 !important;
+  border-color: #52c41a !important;
+  color: #52c41a !important;
+}
+
+.dark-mode .ant-tag-lime {
+  background-color: #1f2611 !important;
+  border-color: #a0d911 !important;
+  color: #a0d911 !important;
+}
+
+.dark-mode .ant-tag-orange {
+  background-color: #2b1d05 !important;
+  border-color: #fa8c16 !important;
+  color: #fa8c16 !important;
+}
+
+.dark-mode .ant-tag-purple {
+  background-color: #22075e !important;
+  border-color: #722ed1 !important;
+  color: #722ed1 !important;
+}
+
+.dark-mode .ant-tag-magenta {
+  background-color: #2a1215 !important;
+  border-color: #eb2f96 !important;
+  color: #eb2f96 !important;
+}
+
+.dark-mode .ant-tag-red {
+  background-color: #2a1215 !important;
+  border-color: #f5222d !important;
+  color: #f5222d !important;
+}
+
+.dark-mode .ant-tag-volcano {
+  background-color: #2b1d05 !important;
+  border-color: #fa541c !important;
+  color: #fa541c !important;
+}
+
+.dark-mode .ant-tag-gold {
+  background-color: #2b1d05 !important;
+  border-color: #faad14 !important;
+  color: #faad14 !important;
+}
+
+/* 深色模式下的自定义标签样式 */
+.dark-mode .custom-tag,
+.dark-mode .flight-info-tag,
+.dark-mode .route-tag,
+.dark-mode .altitude-tag,
+.dark-mode .airac-tag,
+.dark-mode .permission-tag,
+.dark-mode .level-tag {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+  color: #ffffff !important;
+}
+
+/* 深色模式下的信息展示框 */
+.dark-mode .info-display,
+.dark-mode .flight-details,
+.dark-mode .position-info,
+.dark-mode .metadata-box {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+  color: #ffffff !important;
+}
+
+/* 深色模式下的状态指示器 */
+.dark-mode .status-indicator,
+.dark-mode .level-indicator {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+  color: #ffffff !important;
+}
+
+/* 深色模式下的空间组件 */
+.dark-mode .ant-space {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的行和列 */
+.dark-mode .ant-row,
+.dark-mode .ant-col {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的表单 */
+.dark-mode .ant-form-item-label > label {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-form-item-explain {
+  color: #d9d9d9 !important;
+}
+
+/* 深色模式下的文本区域 */
+.dark-mode .ant-input-textarea {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+  color: #ffffff !important;
+}
+
+/* 深色模式下的密码输入框 */
+.dark-mode .ant-input-password {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+  color: #ffffff !important;
+}
+
+/* 深色模式下的时间选择器 */
+.dark-mode .ant-picker {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-picker-input > input {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+/* 深色模式下的日期选择器 */
+.dark-mode .ant-picker-dropdown {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+}
+
+.dark-mode .ant-picker-panel {
+  background-color: #262626 !important;
+}
+
+.dark-mode .ant-picker-header {
+  background-color: #262626 !important;
+  border-bottom-color: #434343 !important;
+}
+
+.dark-mode .ant-picker-header button {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-picker-content th,
+.dark-mode .ant-picker-content td {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-picker-cell {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-picker-cell:hover .ant-picker-cell-inner {
+  background-color: #303030 !important;
+}
+
+/* 深色模式下的头像 */
+.dark-mode .ant-avatar {
+  background-color: #177ddc !important;
+}
+
+/* 深色模式下的开关 */
+.dark-mode .ant-switch {
+  background-color: #434343 !important;
+}
+
+.dark-mode .ant-switch-checked {
+  background-color: #177ddc !important;
+}
+
+/* 深色模式下的加载状态 */
+.dark-mode .ant-spin-dot-item {
+  background-color: #177ddc !important;
+}
+
+/* 深色模式下的进度条 */
+.dark-mode .ant-progress-text {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的徽章 */
+.dark-mode .ant-badge-count {
+  background-color: #177ddc !important;
+  color: #ffffff !important;
+}
+
+/* 深色模式下的工具提示 */
+.dark-mode .ant-tooltip-inner {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-tooltip-arrow::before {
+  background-color: #262626 !important;
+}
+
+/* 深色模式下的通知 */
+.dark-mode .ant-notification-notice {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-notification-notice-message {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-notification-notice-description {
+  color: #d9d9d9 !important;
+}
+
+/* 深色模式下的警告框 */
+.dark-mode .ant-alert {
+  background-color: #262626 !important;
+  border-color: #434343 !important;
+}
+
+.dark-mode .ant-alert-message {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-alert-description {
+  color: #d9d9d9 !important;
+}
+
+/* 深色模式下的面包屑 */
+.dark-mode .ant-breadcrumb {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-breadcrumb-link {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-breadcrumb-separator {
+  color: #d9d9d9 !important;
+}
+
+/* 深色模式下的步骤条 */
+.dark-mode .ant-steps-item-title {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-steps-item-description {
+  color: #d9d9d9 !important;
+}
+
+/* 深色模式下的时间轴 */
+.dark-mode .ant-timeline-item-content {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的评论 */
+.dark-mode .ant-comment-content-author-name {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-comment-content-detail {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的结果页 */
+.dark-mode .ant-result-title {
+  color: #ffffff !important;
+}
+
+.dark-mode .ant-result-subtitle {
+  color: #d9d9d9 !important;
+}
+
+/* 深色模式下的骨架屏 */
+.dark-mode .ant-skeleton-title,
+.dark-mode .ant-skeleton-paragraph > li {
+  background-color: #303030 !important;
+}
+
+/* 深色模式下的锚点 */
+.dark-mode .ant-anchor-link-title {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的回到顶部 */
+.dark-mode .ant-back-top {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+/* 深色模式下的全局文本颜色覆盖 */
+.dark-mode * {
+  color: inherit;
+}
+
+.dark-mode span,
+.dark-mode div,
+.dark-mode p,
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode h5,
+.dark-mode h6 {
+  color: #ffffff !important;
+}
+
+/* 深色模式下的链接 */
+.dark-mode a {
+  color: #177ddc !important;
+}
+
+.dark-mode a:hover {
+  color: #40a9ff !important;
+}
+
+/* 深色模式下的次要文本 */
+.dark-mode .ant-typography-secondary {
+  color: #d9d9d9 !important;
+}
+
+/* 深色模式下的禁用状态 */
+.dark-mode .ant-btn[disabled],
+.dark-mode .ant-input[disabled],
+.dark-mode .ant-select-disabled .ant-select-selector {
+  background-color: #1f1f1f !important;
+  color: #595959 !important;
+  border-color: #303030 !important;
+} 

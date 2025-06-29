@@ -72,7 +72,3 @@ echo "🔧 后端API: http://sj.yfanj.ca:3001"
 EOF
 
 echo "🎉 部署完成！"
-echo "📝 新增功能:"
-echo "   - 管理员可以创建新用户"
-echo "   - 支持设置呼号、邮箱、密码和权限等级"
-echo "   - 只有SUP和ADM用户才能创建用户" 

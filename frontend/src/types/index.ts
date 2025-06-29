@@ -82,7 +82,7 @@ export interface PositionBatchForm {
 }
 
 export interface SignupForm {
-  student_supervised?: string;
+  // 已移除监管选项
 }
 
 // API响应类型

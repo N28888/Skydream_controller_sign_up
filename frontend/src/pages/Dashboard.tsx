@@ -10,6 +10,7 @@ import {
 import { User, Event, Position } from '../types';
 import { userAPI, eventAPI, positionAPI } from '../services/api';
 import dayjs from 'dayjs';
+import { useMediaQuery } from 'react-responsive';
 
 const { Title, Text } = Typography;
 
@@ -21,8 +22,10 @@ const Dashboard: React.FC = () => {
     mySignups: 0,
     upcomingEvents: 0,
   });
+  const [nextEvent, setNextEvent] = useState<Event | null>(null);
   const [recentEvents, setRecentEvents] = useState<Event[]>([]);
   const [mySignups, setMySignups] = useState<Position[]>([]);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   // 获取用户信息
   const fetchUserProfile = async () => {
@@ -53,11 +56,22 @@ const Dashboard: React.FC = () => {
         dayjs(event.event_date).isAfter(dayjs(), 'day')
       ).length;
 
+      // 获取下次活动（最近的未来活动）
+      const futureEvents = allEvents.filter((event: Event) => 
+        dayjs(event.event_date).isAfter(dayjs(), 'day')
+      );
+      const nextEventData = futureEvents.length > 0 
+        ? futureEvents.sort((a: Event, b: Event) => 
+            dayjs(a.event_date).diff(dayjs(b.event_date))
+          )[0] 
+        : null;
+
       setStats({
         totalEvents,
         mySignups: mySignupsCount,
         upcomingEvents,
       });
+      setNextEvent(nextEventData);
 
       // 获取最近5个活动
       const sortedEvents = allEvents.sort((a: Event, b: Event) => {
@@ -140,93 +154,118 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div>
-      <Title level={2}>仪表板</Title>
+    <div style={{ padding: isMobile ? '16px' : '24px' }}>
+      <Title level={isMobile ? 4 : 2}>仪表板</Title>
       
       {/* 用户信息卡片 */}
-      <Card style={{ marginBottom: 24 }}>
-        <Row gutter={16} align="middle">
+      <Card style={{ marginBottom: 24 }} size={isMobile ? 'small' : 'default'}>
+        <Row gutter={isMobile ? 12 : 16} align="middle">
           <Col>
-            <Avatar size={64} icon={<UserOutlined />} />
+            <Avatar size={isMobile ? 48 : 64} icon={<UserOutlined />} />
           </Col>
           <Col flex="1">
-            <Title level={3} style={{ margin: 0 }}>
+            <Title level={isMobile ? 4 : 3} style={{ margin: 0 }}>
               {user?.username}
             </Title>
-            <Tag color={getLevelColor(user?.level || '')} style={{ fontSize: '14px' }}>
+            <Tag color={getLevelColor(user?.level || '')} style={{ fontSize: isMobile ? '12px' : '14px' }}>
               {getLevelText(user?.level || '')}
             </Tag>
             <br />
-            <Text type="secondary">{user?.email}</Text>
+            <Text type="secondary" style={{ fontSize: isMobile ? '12px' : '14px' }}>{user?.email}</Text>
           </Col>
         </Row>
       </Card>
 
       {/* 统计卡片 */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={8}>
-          <Card>
+      <Row gutter={isMobile ? 8 : 16} style={{ marginBottom: 24 }}>
+        <Col span={isMobile ? 12 : 8}>
+          <Card size={isMobile ? 'small' : 'default'}>
             <Statistic
               title="即将举行的活动"
               value={stats.upcomingEvents}
               prefix={<CalendarOutlined />}
-              valueStyle={{ color: '#3f8600' }}
+              valueStyle={{ 
+                color: '#3f8600',
+                fontSize: isMobile ? '20px' : '24px'
+              }}
               loading={loading}
             />
           </Card>
         </Col>
-        <Col span={8}>
-          <Card>
+        <Col span={isMobile ? 12 : 8}>
+          <Card size={isMobile ? 'small' : 'default'}>
             <Statistic
               title="已报名席位"
               value={stats.mySignups}
               prefix={<TeamOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ 
+                color: '#1890ff',
+                fontSize: isMobile ? '20px' : '24px'
+              }}
               loading={loading}
             />
           </Card>
         </Col>
-        <Col span={8}>
-          <Card>
+        <Col span={isMobile ? 24 : 8}>
+          <Card size={isMobile ? 'small' : 'default'}>
             <Statistic
-              title="总活动数"
-              value={stats.totalEvents}
+              title="下次活动"
+              value={nextEvent ? dayjs(nextEvent.event_date).format('MM-DD') : '暂无'}
               prefix={<CalendarOutlined />}
-              valueStyle={{ color: '#cf1322' }}
+              valueStyle={{ 
+                color: '#cf1322',
+                fontSize: isMobile ? '20px' : '24px'
+              }}
               loading={loading}
+              suffix={nextEvent ? dayjs(nextEvent.event_time, 'HH:mm:ss').format('HH:mm') : ''}
             />
+            {nextEvent && (
+              <div style={{ 
+                marginTop: 8, 
+                fontSize: isMobile ? '11px' : '12px', 
+                color: '#666' 
+              }}>
+                {nextEvent.title}
+              </div>
+            )}
           </Card>
         </Col>
       </Row>
 
       {/* 最近活动 */}
-      <Row gutter={16}>
-        <Col span={12}>
-          <Card title="最近活动" extra={<a href="/events">查看全部</a>}>
+      <Row gutter={isMobile ? 16 : 16}>
+        <Col span={isMobile ? 24 : 12}>
+          <Card 
+            title="最近活动" 
+            extra={<a href="/events">查看全部</a>}
+            size={isMobile ? 'small' : 'default'}
+            style={{ marginBottom: isMobile ? 16 : 0 }}
+          >
             <List
               dataSource={recentEvents}
               loading={loading}
+              size={isMobile ? 'small' : 'default'}
               renderItem={(event: Event) => (
-                <List.Item>
+                <List.Item style={{ padding: isMobile ? '8px 0' : '12px 0' }}>
                   <List.Item.Meta
-                    avatar={<Avatar icon={<CalendarOutlined />} />}
+                    avatar={<Avatar size={isMobile ? 'small' : 'default'} icon={<CalendarOutlined />} />}
                     title={
                       <div>
-                        <Text strong>{event.title}</Text>
+                        <Text strong style={{ fontSize: isMobile ? '13px' : '14px' }}>{event.title}</Text>
                         <br />
-                        <Space size="small">
-                          <Tag color="blue" icon={<EnvironmentOutlined />}>
+                        <Space size="small" style={{ marginTop: 4 }}>
+                          <Tag color="blue" icon={<EnvironmentOutlined />} style={{ fontSize: isMobile ? '11px' : '12px' }}>
                             {event.departure_airport}
                           </Tag>
-                          <span>→</span>
-                          <Tag color="green" icon={<EnvironmentOutlined />}>
+                          <span style={{ fontSize: isMobile ? '11px' : '12px' }}>→</span>
+                          <Tag color="green" icon={<EnvironmentOutlined />} style={{ fontSize: isMobile ? '11px' : '12px' }}>
                             {event.arrival_airport}
                           </Tag>
                         </Space>
                       </div>
                     }
                     description={
-                      <div>
+                      <div style={{ fontSize: isMobile ? '11px' : '12px' }}>
                         <Text type="secondary">
                           <ClockCircleOutlined /> {dayjs(event.event_date).format('YYYY年MM月DD日')} {dayjs(event.event_time, 'HH:mm:ss').format('HH:mm')}
                         </Text>
@@ -251,35 +290,47 @@ const Dashboard: React.FC = () => {
               )}
               locale={{
                 emptyText: (
-                  <div style={{ textAlign: 'center', padding: '20px' }}>
-                    <CalendarOutlined style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }} />
-                    <div>暂无活动</div>
-                    <div style={{ color: '#999', fontSize: '12px' }}>还没有创建任何活动</div>
+                  <div style={{ textAlign: 'center', padding: isMobile ? '16px' : '20px' }}>
+                    <CalendarOutlined style={{ 
+                      fontSize: isMobile ? '36px' : '48px', 
+                      color: '#d9d9d9', 
+                      marginBottom: isMobile ? '12px' : '16px' 
+                    }} />
+                    <div style={{ fontSize: isMobile ? '13px' : '14px' }}>暂无活动</div>
+                    <div style={{ color: '#999', fontSize: isMobile ? '11px' : '12px' }}>还没有创建任何活动</div>
                   </div>
                 )
               }}
             />
           </Card>
         </Col>
-        <Col span={12}>
-          <Card title="我的报名" extra={<a href="/positions">查看全部</a>}>
+        <Col span={isMobile ? 24 : 12}>
+          <Card 
+            title="我的报名" 
+            extra={<a href="/positions">查看全部</a>}
+            size={isMobile ? 'small' : 'default'}
+          >
             <List
               dataSource={mySignups}
               loading={loading}
+              size={isMobile ? 'small' : 'default'}
               renderItem={(position: Position) => (
-                <List.Item>
+                <List.Item style={{ padding: isMobile ? '8px 0' : '12px 0' }}>
                   <List.Item.Meta
-                    avatar={<Avatar icon={<TeamOutlined />} />}
+                    avatar={<Avatar size={isMobile ? 'small' : 'default'} icon={<TeamOutlined />} />}
                     title={
                       <div>
-                        <Text strong>{position.position_name}</Text>
-                        <Tag color="blue" style={{ marginLeft: 8 }}>
+                        <Text strong style={{ fontSize: isMobile ? '13px' : '14px' }}>{position.position_name}</Text>
+                        <Tag color="blue" style={{ 
+                          marginLeft: 8,
+                          fontSize: isMobile ? '11px' : '12px'
+                        }}>
                           {getPositionTypeName(position.position_type)}
                         </Tag>
                       </div>
                     }
                     description={
-                      <div>
+                      <div style={{ fontSize: isMobile ? '11px' : '12px' }}>
                         <Text type="secondary">
                           {position.event_date ? dayjs(position.event_date).format('YYYY-MM-DD') : '未知日期'} {position.event_time ? dayjs(position.event_time, 'HH:mm:ss').format('HH:mm') : ''}
                         </Text>
@@ -295,10 +346,14 @@ const Dashboard: React.FC = () => {
               )}
               locale={{
                 emptyText: (
-                  <div style={{ textAlign: 'center', padding: '20px' }}>
-                    <TeamOutlined style={{ fontSize: '48px', color: '#d9d9d9', marginBottom: '16px' }} />
-                    <div>暂无报名</div>
-                    <div style={{ color: '#999', fontSize: '12px' }}>还没有报名任何席位</div>
+                  <div style={{ textAlign: 'center', padding: isMobile ? '16px' : '20px' }}>
+                    <TeamOutlined style={{ 
+                      fontSize: isMobile ? '36px' : '48px', 
+                      color: '#d9d9d9', 
+                      marginBottom: isMobile ? '12px' : '16px' 
+                    }} />
+                    <div style={{ fontSize: isMobile ? '13px' : '14px' }}>暂无报名</div>
+                    <div style={{ color: '#999', fontSize: isMobile ? '11px' : '12px' }}>还没有报名任何席位</div>
                   </div>
                 )
               }}

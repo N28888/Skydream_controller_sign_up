@@ -127,7 +127,13 @@ const ChangePassword: React.FC = () => {
           </Form.Item>
         </Form>
 
-        <div style={{ marginTop: 16, padding: 16, background: '#f6f8fa', borderRadius: 6 }}>
+        <div style={{ 
+          marginTop: 16, 
+          padding: 16, 
+          background: 'var(--password-requirements-bg, #f6f8fa)', 
+          borderRadius: 6,
+          border: '1px solid var(--password-requirements-border, #e1e4e8)'
+        }}>
           <Text type="secondary">
             <strong>密码要求：</strong>
             <ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
