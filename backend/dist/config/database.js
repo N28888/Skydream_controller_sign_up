@@ -17,4 +17,19 @@ const dbConfig = {
     queueLimit: 0
 };
 const pool = promise_1.default.createPool(dbConfig);
+// 测试数据库连接
+pool.getConnection()
+    .then(connection => {
+    console.log('✅ 数据库连接成功');
+    connection.release();
+})
+    .catch(err => {
+    console.error('❌ 数据库连接失败:', err.message);
+    console.error('数据库配置:', {
+        host: dbConfig.host,
+        port: dbConfig.port,
+        user: dbConfig.user,
+        database: dbConfig.database
+    });
+});
 exports.default = pool;

@@ -166,12 +166,32 @@ const Events: React.FC = () => {
   // 删除活动
   const handleDelete = async (id: number) => {
     try {
-      await eventAPI.deleteEvent(id);
+      console.log('开始删除活动:', id);
+      const response = await eventAPI.deleteEvent(id);
+      console.log('删除活动响应:', response);
       message.success('活动删除成功');
       fetchEvents();
-    } catch (error) {
-      message.error('删除活动失败');
-      console.error('删除失败:', error);
+    } catch (error: any) {
+      console.error('删除活动失败:', error);
+      console.error('错误详情:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        config: error.config
+      });
+      
+      // 根据错误类型显示不同的错误信息
+      if (error.response?.status === 401) {
+        message.error('登录已过期，请重新登录');
+      } else if (error.response?.status === 403) {
+        message.error('权限不足，无法删除活动');
+      } else if (error.response?.status === 404) {
+        message.error('活动不存在或已被删除');
+      } else if (error.response?.status === 500) {
+        message.error('服务器内部错误，请稍后重试');
+      } else {
+        message.error(error.response?.data?.message || '删除活动失败');
+      }
     }
   };
 

@@ -37,6 +37,22 @@ app.get('/health', (req, res) => {
 app.use('/api/users', userRoutes_1.default);
 app.use('/api/events', eventRoutes_1.default);
 app.use('/api/positions', positionRoutes_1.default);
+// 全局错误处理中间件
+app.use((err, req, res, next) => {
+    console.error('全局错误处理:', err);
+    res.status(500).json({
+        success: false,
+        message: '服务器内部错误',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+});
+// 404处理
+app.use('*', (req, res) => {
+    res.status(404).json({
+        success: false,
+        message: '接口不存在'
+    });
+});
 // 启动服务器
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);

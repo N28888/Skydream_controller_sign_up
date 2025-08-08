@@ -2,6 +2,21 @@ import { Request, Response } from 'express';
 import { EventModel } from '../models/Event';
 
 export class EventController {
+  // 测试数据库连接
+  static async testDatabaseConnection(req: Request, res: Response) {
+    try {
+      const isConnected = await EventModel.testConnection();
+      if (isConnected) {
+        res.json({ success: true, message: '数据库连接正常' });
+      } else {
+        res.status(500).json({ success: false, message: '数据库连接失败' });
+      }
+    } catch (error) {
+      console.error('数据库连接测试失败:', error);
+      res.status(500).json({ success: false, message: '数据库连接测试失败' });
+    }
+  }
+
   // 创建活动
   static async create(req: Request, res: Response) {
     try {
@@ -16,9 +31,11 @@ export class EventController {
         event_time
       } = req.body;
       const created_by = (req as any).user?.userId;
+      
       if (!title || !departure_airport || !arrival_airport || !event_date || !event_time) {
         return res.status(400).json({ success: false, message: '请填写完整活动信息' });
       }
+      
       const eventId = await EventModel.create({
         title,
         departure_airport,
@@ -30,11 +47,12 @@ export class EventController {
         event_time,
         created_by
       });
+      
       const event = await EventModel.findById(eventId);
       res.status(201).json({ success: true, message: '活动创建成功', data: event });
     } catch (error) {
       console.error('创建活动失败:', error);
-      res.status(500).json({ success: false, message: '服务器内部错误' });
+      res.status(500).json({ success: false, message: error instanceof Error ? error.message : '服务器内部错误' });
     }
   }
 
@@ -45,7 +63,7 @@ export class EventController {
       res.json({ success: true, data: events });
     } catch (error) {
       console.error('获取活动列表失败:', error);
-      res.status(500).json({ success: false, message: '服务器内部错误' });
+      res.status(500).json({ success: false, message: error instanceof Error ? error.message : '服务器内部错误' });
     }
   }
 
@@ -60,7 +78,7 @@ export class EventController {
       res.json({ success: true, data: event });
     } catch (error) {
       console.error('获取活动详情失败:', error);
-      res.status(500).json({ success: false, message: '服务器内部错误' });
+      res.status(500).json({ success: false, message: error instanceof Error ? error.message : '服务器内部错误' });
     }
   }
 
@@ -77,7 +95,7 @@ export class EventController {
       res.json({ success: true, message: '活动更新成功', data: event });
     } catch (error) {
       console.error('更新活动失败:', error);
-      res.status(500).json({ success: false, message: '服务器内部错误' });
+      res.status(500).json({ success: false, message: error instanceof Error ? error.message : '服务器内部错误' });
     }
   }
 
@@ -85,14 +103,31 @@ export class EventController {
   static async remove(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
+      const userId = (req as any).user?.userId;
+      const userLevel = (req as any).user?.level;
+      
+      console.log(`删除活动请求 - ID: ${id}, 用户ID: ${userId}, 用户级别: ${userLevel}`);
+      
+      // 检查活动是否存在
+      const event = await EventModel.findById(id);
+      if (!event) {
+        console.log(`活动不存在 - ID: ${id}`);
+        return res.status(404).json({ success: false, message: '活动不存在' });
+      }
+      
+      console.log(`找到活动 - ID: ${id}, 标题: ${event.title}`);
+      
       const ok = await EventModel.delete(id);
       if (!ok) {
-        return res.status(404).json({ success: false, message: '活动不存在或删除失败' });
+        console.log(`删除活动失败 - ID: ${id}`);
+        return res.status(500).json({ success: false, message: '删除活动失败' });
       }
+      
+      console.log(`活动删除成功 - ID: ${id}`);
       res.json({ success: true, message: '活动已删除' });
     } catch (error) {
       console.error('删除活动失败:', error);
-      res.status(500).json({ success: false, message: '服务器内部错误' });
+      res.status(500).json({ success: false, message: error instanceof Error ? error.message : '服务器内部错误' });
     }
   }
 } 

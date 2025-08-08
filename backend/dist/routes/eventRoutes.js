@@ -9,6 +9,8 @@ const router = (0, express_1.Router)();
 const asyncHandler = (fn) => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
 };
+// 数据库连接测试
+router.get('/test-db', asyncHandler(eventController_1.EventController.testDatabaseConnection));
 // 获取活动列表（所有人可见）
 router.get('/', asyncHandler(eventController_1.EventController.list));
 // 获取活动详情（所有人可见）

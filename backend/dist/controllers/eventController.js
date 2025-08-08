@@ -12,6 +12,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventController = void 0;
 const Event_1 = require("../models/Event");
 class EventController {
+    // 测试数据库连接
+    static testDatabaseConnection(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const isConnected = yield Event_1.EventModel.testConnection();
+                if (isConnected) {
+                    res.json({ success: true, message: '数据库连接正常' });
+                }
+                else {
+                    res.status(500).json({ success: false, message: '数据库连接失败' });
+                }
+            }
+            catch (error) {
+                console.error('数据库连接测试失败:', error);
+                res.status(500).json({ success: false, message: '数据库连接测试失败' });
+            }
+        });
+    }
     // 创建活动
     static create(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -38,7 +56,7 @@ class EventController {
             }
             catch (error) {
                 console.error('创建活动失败:', error);
-                res.status(500).json({ success: false, message: '服务器内部错误' });
+                res.status(500).json({ success: false, message: error instanceof Error ? error.message : '服务器内部错误' });
             }
         });
     }
@@ -51,7 +69,7 @@ class EventController {
             }
             catch (error) {
                 console.error('获取活动列表失败:', error);
-                res.status(500).json({ success: false, message: '服务器内部错误' });
+                res.status(500).json({ success: false, message: error instanceof Error ? error.message : '服务器内部错误' });
             }
         });
     }
@@ -68,7 +86,7 @@ class EventController {
             }
             catch (error) {
                 console.error('获取活动详情失败:', error);
-                res.status(500).json({ success: false, message: '服务器内部错误' });
+                res.status(500).json({ success: false, message: error instanceof Error ? error.message : '服务器内部错误' });
             }
         });
     }
@@ -87,24 +105,37 @@ class EventController {
             }
             catch (error) {
                 console.error('更新活动失败:', error);
-                res.status(500).json({ success: false, message: '服务器内部错误' });
+                res.status(500).json({ success: false, message: error instanceof Error ? error.message : '服务器内部错误' });
             }
         });
     }
     // 删除活动
     static remove(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             try {
                 const id = Number(req.params.id);
+                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+                const userLevel = (_b = req.user) === null || _b === void 0 ? void 0 : _b.level;
+                console.log(`删除活动请求 - ID: ${id}, 用户ID: ${userId}, 用户级别: ${userLevel}`);
+                // 检查活动是否存在
+                const event = yield Event_1.EventModel.findById(id);
+                if (!event) {
+                    console.log(`活动不存在 - ID: ${id}`);
+                    return res.status(404).json({ success: false, message: '活动不存在' });
+                }
+                console.log(`找到活动 - ID: ${id}, 标题: ${event.title}`);
                 const ok = yield Event_1.EventModel.delete(id);
                 if (!ok) {
-                    return res.status(404).json({ success: false, message: '活动不存在或删除失败' });
+                    console.log(`删除活动失败 - ID: ${id}`);
+                    return res.status(500).json({ success: false, message: '删除活动失败' });
                 }
+                console.log(`活动删除成功 - ID: ${id}`);
                 res.json({ success: true, message: '活动已删除' });
             }
             catch (error) {
                 console.error('删除活动失败:', error);
-                res.status(500).json({ success: false, message: '服务器内部错误' });
+                res.status(500).json({ success: false, message: error instanceof Error ? error.message : '服务器内部错误' });
             }
         });
     }
